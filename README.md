@@ -26,3 +26,17 @@ deno task start
 ## デプロイ
 
 このプロジェクトはDeno Deployを使用してデプロイされます。
+
+### デプロイ手順
+
+1. [Deno Deploy](https://dash.deno.com)にアクセスし、新しいプロジェクトを作成
+2. プロジェクト名を`notion-markdown`に設定
+3. GitHubリポジトリと連携を設定
+   - GitHubリポジトリを選択
+   - "Automatic"デプロイを選択
+   - ブランチを`main`に設定
+4. GitHub Actionsによって自動的にデプロイされます
+
+デプロイ後は以下のURLでアクセス可能です：
+```
+https://notion-markdown.deno.dev
