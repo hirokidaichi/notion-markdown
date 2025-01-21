@@ -1,39 +1,47 @@
 {
   "tasks": {
-    "dev": "deno run --allow-net --allow-env --watch main.ts",
-    "start": "deno run --allow-net --allow-env main.ts",
+    "dev": "deno run --allow-net --allow-env --allow-read --watch main.ts",
+    "start": "deno run --allow-net --allow-env --allow-read main.ts",
     "test": "deno test --allow-net"
   },
   "imports": {
     "@/": "./",
     "marked": "https://esm.sh/marked@9.1.6",
     "marked/": "https://esm.sh/marked@9.1.6/",
-    "std/": "https://deno.land/std@0.208.0/"
+    "std/": "https://deno.land/std@0.208.0/",
+    "hono": "https://deno.land/x/hono@v3.11.7/mod.ts"
   },
   "compilerOptions": {
     "strict": true,
-    "useDefineForClassFields": true,
-    "allowJs": false,
-    "lib": ["deno.window", "dom", "esnext"],
+    "lib": [
+      "deno.window",
+      "dom",
+      "esnext"
+    ],
     "strictNullChecks": true,
     "noImplicitAny": true,
     "noImplicitThis": true,
-    "alwaysStrict": true,
-    "isolatedModules": true,
-    "preserveConstEnums": true,
-    "removeComments": false
+    "types": [
+      "hono"
+    ]
   },
   "lint": {
     "files": {
-      "include": ["./"]
+      "include": [
+        "./"
+      ]
     },
     "rules": {
-      "tags": ["recommended"]
+      "tags": [
+        "recommended"
+      ]
     }
   },
   "fmt": {
     "files": {
-      "include": ["./"]
+      "include": [
+        "./"
+      ]
     },
     "options": {
       "useTabs": false,

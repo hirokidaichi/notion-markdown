@@ -1,4 +1,4 @@
-import { Hono } from "https://deno.land/x/hono@v3.11.7/mod.ts";
+import { Hono } from "hono";
 import { 
   GetPageRequest, 
   GetPageResponse, 
@@ -7,8 +7,12 @@ import {
   CreatePageRequest,
   CreatePageResponse
 } from "../types.ts";
+import { NotionClient } from "../lib/notion-client.ts";
 
 const api = new Hono();
+
+// NotionClientのインスタンスを作成
+const notionClient = new NotionClient(Deno.env.get("NOTION_TOKEN") || "");
 
 // GET /api/pages/:pageId
 api.get("/pages/:pageId", async (c) => {
@@ -24,19 +28,30 @@ api.get("/pages/:pageId", async (c) => {
 api.post("/pages/:pageId/append", async (c) => {
   const pageId = c.req.param("pageId");
   const body: AppendPageRequest = await c.req.json();
+  
+  const success = await notionClient.appendPage(pageId, body.markdown);
   const response: AppendPageResponse = {
-    success: true  // 実装時に適切な値を設定
+    success
   };
+  
   return c.json(response);
 });
 
 // POST /api/pages
 api.post("/pages", async (c) => {
   const body: CreatePageRequest = await c.req.json();
+  
+  const result = await notionClient.createPage(
+    body.title,
+    body.markdown,
+    body.parentId
+  );
+  
   const response: CreatePageResponse = {
-    pageId: "dummy-page-id",  // 実装時に適切な値を設定
-    success: true            // 実装時に適切な値を設定
+    pageId: result.pageId,
+    success: result.success
   };
+  
   return c.json(response);
 });
 
