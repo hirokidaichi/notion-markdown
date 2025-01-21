@@ -1,7 +1,14 @@
 {
   "tasks": {
     "dev": "deno run --allow-net --allow-env --watch main.ts",
-    "start": "deno run --allow-net --allow-env main.ts"
+    "start": "deno run --allow-net --allow-env main.ts",
+    "test": "deno test --allow-net"
+  },
+  "imports": {
+    "@/": "./",
+    "marked": "https://esm.sh/marked@9.1.6",
+    "marked/": "https://esm.sh/marked@9.1.6/",
+    "std/": "https://deno.land/std@0.208.0/"
   },
   "compilerOptions": {
     "allowJs": true,
