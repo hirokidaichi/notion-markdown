@@ -20,15 +20,3 @@ export interface AppendPageRequest {
 export interface AppendPageResponse {
   success: boolean;
 }
-
-// CreatePage API
-export interface CreatePageRequest {
-  title: string;
-  markdown: string;
-  parentId?: NotionPageId;
-}
-
-export interface CreatePageResponse {
-  pageId: NotionPageId;
-  success: boolean;
-}

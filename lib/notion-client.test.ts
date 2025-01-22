@@ -1,21 +1,11 @@
 import { assertEquals, assertRejects } from "https://deno.land/std@0.208.0/assert/mod.ts";
 import { NotionClient } from "./notion-client.ts";
 import { MarkdownToBlocks } from "./markdown-to-blocks.ts";
-import {
-  CreatePageResponse,
-  GetPageResponse,
-  ListBlockChildrenResponse,
-  UpdatePageResponse,
-} from "https://deno.land/x/notion_sdk@v2.2.3/src/api-endpoints.ts";
 
 // モックの作成
 class MockNotionAPI {
   async append() {
     return { id: "test-block-id" };
-  }
-
-  async create() {
-    return { id: "test-page-id" };
   }
 
   async retrieve() {
@@ -63,7 +53,6 @@ class MockClient {
     },
   };
   pages = {
-    create: async () => new MockNotionAPI().create(),
     retrieve: async () => new MockNotionAPI().retrieve(),
   };
 }
@@ -80,7 +69,6 @@ Deno.test("NotionClient - getPage 正常系", async () => {
 
 Deno.test("NotionClient - getPage 異常系", async () => {
   const client = new NotionClient("dummy-api-key");
-  // @ts-ignore: プライベートプロパティへのアクセス
   // @ts-ignore: プライベートプロパティへのアクセス
   client.client = new MockClient();
   // @ts-ignore: プライベートプロパティへのアクセス
@@ -121,55 +109,6 @@ Deno.test("NotionClient - appendPage 異常系（変換エラー）", async () =
 
   const result = await client.appendPage("test-page-id", "# テスト");
   assertEquals(result, false);
-});
-
-Deno.test("NotionClient - createPage 正常系（parentIdあり）", async () => {
-  const client = new NotionClient("dummy-api-key");
-  // @ts-ignore: プライベートプロパティへのアクセス
-  client.client = new MockClient();
-
-  const result = await client.createPage(
-    "テストページ",
-    "# テスト\nこれはテストです。",
-    "parent-page-id"
-  );
-
-  assertEquals(result.success, true);
-  assertEquals(result.pageId, "test-page-id");
-});
-
-Deno.test("NotionClient - createPage 正常系（databaseId使用）", async () => {
-  // 環境変数の設定
-  Deno.env.set("NOTION_DATABASE_ID", "test-database-id");
-
-  const client = new NotionClient("dummy-api-key");
-  // @ts-ignore: プライベートプロパティへのアクセス
-  client.client = new MockClient();
-
-  const result = await client.createPage(
-    "テストページ",
-    "# テスト\nこれはテストです。"
-  );
-
-  assertEquals(result.success, true);
-  assertEquals(result.pageId, "test-page-id");
-
-  // 環境変数のクリーンアップ
-  Deno.env.delete("NOTION_DATABASE_ID");
-});
-
-Deno.test("NotionClient - createPage 異常系（環境変数なし）", async () => {
-  const client = new NotionClient("dummy-api-key");
-  // @ts-ignore: プライベートプロパティへのアクセス
-  client.client = new MockClient();
-
-  const result = await client.createPage(
-    "テストページ",
-    "# テスト\nこれはテストです。"
-  );
-
-  assertEquals(result.success, false);
-  assertEquals(result.pageId, "");
 });
 
 Deno.test("NotionClient - convertToNotionBlocks", () => {

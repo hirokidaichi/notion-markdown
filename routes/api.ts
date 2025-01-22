@@ -1,11 +1,9 @@
 import { Hono } from "hono";
-import { 
-  GetPageRequest, 
-  GetPageResponse, 
-  AppendPageRequest, 
+import {
+  GetPageRequest,
+  GetPageResponse,
+  AppendPageRequest,
   AppendPageResponse,
-  CreatePageRequest,
-  CreatePageResponse
 } from "../types.ts";
 import { NotionClient } from "../lib/notion-client.ts";
 
@@ -43,22 +41,5 @@ api.post("/pages/:pageId/append", async (c) => {
   return c.json(response);
 });
 
-// POST /api/pages
-api.post("/pages", async (c) => {
-  const body: CreatePageRequest = await c.req.json();
-  
-  const result = await notionClient.createPage(
-    body.title,
-    body.markdown,
-    body.parentId
-  );
-  
-  const response: CreatePageResponse = {
-    pageId: result.pageId,
-    success: result.success
-  };
-  
-  return c.json(response);
-});
 
 export default api;
