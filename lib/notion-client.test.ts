@@ -88,7 +88,7 @@ Deno.test("NotionClient - getPage 異常系", async () => {
   // @ts-ignore: プライベートプロパティへのアクセス
   client.client = new MockClient();
   // @ts-ignore: プライベートプロパティへのアクセス
-  client.client.pages.retrieve = async () => {
+  client.client.pages.retrieve =  () => {
     throw new Error("API Error");
   };
 

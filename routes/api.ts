@@ -1,6 +1,5 @@
 import { Hono } from "hono";
 import {
-  GetPageRequest,
   GetPageResponse,
   AppendPageRequest,
   AppendPageResponse,

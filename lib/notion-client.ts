@@ -4,6 +4,7 @@ import {
   LanguageRequest,
   BlockObjectResponse,
   RichTextItemResponse,
+  PageObjectResponse,
 } from "https://deno.land/x/notion_sdk@v2.2.3/src/api-endpoints.ts";
 import { BlockToMarkdown } from "./block-to-markdown.ts";
 import { NotionBlocks, NotionRichText } from "./types.ts";
@@ -140,7 +141,7 @@ export class NotionClient {
       // タイトルの取得
       let title = "";
       if ('properties' in page) {
-        const properties = page.properties as Record<string, any>;
+        const properties = page.properties as PageObjectResponse['properties'];
         // titleプロパティを優先的に探す
         if (properties.title?.type === 'title' && properties.title.title?.[0]?.plain_text) {
           title = properties.title.title[0].plain_text;
