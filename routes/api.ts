@@ -2,7 +2,6 @@ import { Hono } from "hono";
 import {
   AppendPageRequest,
   AppendPageResponse,
-  GetPageRequest,
   GetPageResponse,
 } from "../types.ts";
 import { NotionClient } from "../lib/notion-client.ts";
@@ -13,6 +12,7 @@ const api = new Hono();
 const notionClient = new NotionClient(Deno.env.get("NOTION_TOKEN") || "");
 
 // UUIDバリデーションミドルウェア
+// deno-lint-ignore no-explicit-any
 const validateUUID = async (c: any, next: any) => {
   const pageId = c.req.param("pageId");
   const uuidRegex =
@@ -29,6 +29,7 @@ const validateUUID = async (c: any, next: any) => {
 };
 
 // 認証ミドルウェア
+// deno-lint-ignore no-explicit-any
 const auth = async (c: any, next: any) => {
   const authHeader = c.req.header("Authorization");
   const apiKey = Deno.env.get("API_KEY");
@@ -53,7 +54,7 @@ const auth = async (c: any, next: any) => {
 api.use("/*", auth);
 
 // GET /api/pages/:pageId
-api.get("/", async (c) => {
+api.get("/", (c) => {
   return c.json({ message: "Hello, World!" });
 });
 
