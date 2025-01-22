@@ -77,6 +77,22 @@ deno task test
 ### POST /api/pages/:pageId/append
 - 既存のNotionページにMarkdownコンテンツを追加
 
+```bash
+# マークダウンコンテンツを追加するcurlコマンド例
+curl -X POST \
+  -H "Authorization: Bearer ${NOTION_API_KEY}" \
+  -H 'Content-Type: application/json' \
+  -d '{"markdown": "# 新しいセクション\n\nここに追加したいコンテンツを記述"}' \
+  https://notion-markdown-api.deno.dev/api/pages/${PAGE_ID}/append
+```
+
+### GET /api/pages/:pageId の使用例
+```bash
+# ページの内容を取得するcurlコマンド例
+curl -H "Authorization: Bearer ${NOTION_API_KEY}" \
+  https://notion-markdown-api.deno.dev/api/pages/${PAGE_ID} | jq .
+```
+
 ## デプロイメント
 - Deno Deployを使用
 - GitHubリポジトリと連携
