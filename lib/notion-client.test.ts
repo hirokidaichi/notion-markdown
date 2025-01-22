@@ -1,6 +1,12 @@
-import { assertEquals } from "https://deno.land/std@0.208.0/assert/mod.ts";
+import { assertEquals, assertRejects } from "https://deno.land/std@0.208.0/assert/mod.ts";
 import { NotionClient } from "./notion-client.ts";
 import { MarkdownToBlocks } from "./markdown-to-blocks.ts";
+import {
+  CreatePageResponse,
+  GetPageResponse,
+  ListBlockChildrenResponse,
+  UpdatePageResponse,
+} from "https://deno.land/x/notion_sdk@v2.2.3/src/api-endpoints.ts";
 
 // モックの作成
 class MockNotionAPI {
@@ -11,18 +17,85 @@ class MockNotionAPI {
   async create() {
     return { id: "test-page-id" };
   }
+
+  async retrieve() {
+    return {
+      properties: {
+        title: {
+          title: [{ plain_text: "テストページ" }],
+        },
+      },
+    };
+  }
+
+  async list() {
+    return {
+      results: [
+        {
+          type: "paragraph",
+          paragraph: {
+            rich_text: [
+              {
+                type: "text",
+                plain_text: "これはテストです。",
+                text: { content: "これはテストです。" },
+                annotations: {
+                  bold: false,
+                  italic: false,
+                  strikethrough: false,
+                  underline: false,
+                  code: false,
+                },
+              },
+            ],
+          },
+        },
+      ],
+    };
+  }
 }
 
 class MockClient {
   blocks = {
     children: {
       append: async () => new MockNotionAPI().append(),
+      list: async () => new MockNotionAPI().list(),
     },
   };
   pages = {
     create: async () => new MockNotionAPI().create(),
+    retrieve: async () => new MockNotionAPI().retrieve(),
   };
 }
+
+Deno.test("NotionClient - getPage 正常系", async () => {
+  const client = new NotionClient("dummy-api-key");
+  // @ts-ignore: プライベートプロパティへのアクセス
+  client.client = new MockClient();
+
+  const result = await client.getPage("test-page-id");
+  assertEquals(result.title, "テストページ");
+  assertEquals(result.markdown.trim(), "これはテストです。");
+});
+
+Deno.test("NotionClient - getPage 異常系", async () => {
+  const client = new NotionClient("dummy-api-key");
+  // @ts-ignore: プライベートプロパティへのアクセス
+  // @ts-ignore: プライベートプロパティへのアクセス
+  client.client = new MockClient();
+  // @ts-ignore: プライベートプロパティへのアクセス
+  client.client.pages.retrieve = async () => {
+    throw new Error("API Error");
+  };
+
+  await assertRejects(
+    async () => {
+      await client.getPage("test-page-id");
+    },
+    Error,
+    "API Error"
+  );
+});
 
 Deno.test("NotionClient - appendPage 正常系", async () => {
   // APIキーは実際には使用されないのでダミー値を使用

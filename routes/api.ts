@@ -17,11 +17,17 @@ const notionClient = new NotionClient(Deno.env.get("NOTION_TOKEN") || "");
 // GET /api/pages/:pageId
 api.get("/pages/:pageId", async (c) => {
   const pageId = c.req.param("pageId");
-  const response: GetPageResponse = {
-    markdown: "",  // 実装時に適切な値を設定
-    title: ""      // 実装時に適切な値を設定
-  };
-  return c.json(response);
+  try {
+    const result = await notionClient.getPage(pageId);
+    const response: GetPageResponse = {
+      markdown: result.markdown,
+      title: result.title
+    };
+    return c.json(response);
+  } catch (error) {
+    console.error("Error getting page:", error);
+    return c.json({ error: "Failed to get page" }, 500);
+  }
 });
 
 // POST /api/pages/:pageId/append
