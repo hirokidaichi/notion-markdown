@@ -52,8 +52,6 @@ export class BlockToMarkdown {
 
   convert(blocks: NotionBlocks[]): string {
     let markdown = "";
-    let isInList = false;
-
     for (let i = 0; i < blocks.length; i++) {
       const block = blocks[i];
       const nextBlock = blocks[i + 1];
@@ -61,19 +59,15 @@ export class BlockToMarkdown {
       switch (block.type) {
         case "paragraph":
           markdown += this.convertParagraph(block);
-          isInList = false;
           break;
         case "heading_1":
           markdown += this.convertHeading1(block);
-          isInList = false;
           break;
         case "heading_2":
           markdown += this.convertHeading2(block);
-          isInList = false;
           break;
         case "heading_3":
           markdown += this.convertHeading3(block);
-          isInList = false;
           break;
         case "bulleted_list_item":
         case "numbered_list_item": {
@@ -88,19 +82,14 @@ export class BlockToMarkdown {
 
           if (isLastListItem) {
             markdown += "\n";
-            isInList = false;
-          } else {
-            isInList = true;
           }
           break;
         }
         case "code":
           markdown += this.convertCode(block as NotionCodeBlock);
-          isInList = false;
           break;
         case "quote":
           markdown += this.convertQuote(block as NotionQuoteBlock);
-          isInList = false;
           break;
       }
     }
