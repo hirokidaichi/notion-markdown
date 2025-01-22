@@ -4,6 +4,7 @@ import {
 } from "https://deno.land/std@0.208.0/assert/mod.ts";
 import { NotionClient } from "./notion-client.ts";
 import { MarkdownToBlocks } from "./markdown-to-blocks.ts";
+import { NotionCodeBlock } from "./types.ts";
 
 // モックの作成
 class MockNotionAPI {
@@ -137,5 +138,5 @@ Deno.test("NotionClient - convertToNotionBlocks", () => {
 
   assertEquals(notionBlocks.length, 1);
   assertEquals(notionBlocks[0].type, "code");
-  assertEquals((notionBlocks[0] as any).code.language, "typescript");
+  assertEquals((notionBlocks[0] as NotionCodeBlock).code.language, "typescript");
 });

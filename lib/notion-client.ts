@@ -2,8 +2,6 @@ import { Client } from "https://deno.land/x/notion_sdk@v2.2.3/src/mod.ts";
 import { 
   BlockObjectRequest, 
   LanguageRequest,
-  GetPageResponse,
-  ListBlockChildrenResponse,
   BlockObjectResponse,
   RichTextItemResponse,
 } from "https://deno.land/x/notion_sdk@v2.2.3/src/api-endpoints.ts";
