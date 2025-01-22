@@ -143,14 +143,17 @@ export class NotionClient {
       let title = "";
       if ('properties' in page) {
         const properties = page.properties as Record<string, any>;
-        // プロパティを走査してタイトルを探す
-        for (const [_, prop] of Object.entries(properties)) {
-          if (prop.type === 'rich_text' && prop.rich_text?.[0]?.plain_text) {
-            title = prop.rich_text[0].plain_text;
-            break;
-          } else if (prop.type === 'title' && prop.title?.[0]?.plain_text) {
-            title = prop.title[0].plain_text;
-            break;
+        // titleプロパティを優先的に探す
+        if (properties.title?.type === 'title' && properties.title.title?.[0]?.plain_text) {
+          title = properties.title.title[0].plain_text;
+        }
+        // titleが見つからない場合は他のプロパティを探す
+        if (!title) {
+          for (const [_, prop] of Object.entries(properties)) {
+            if (prop.type === 'rich_text' && prop.rich_text?.[0]?.plain_text) {
+              title = prop.rich_text[0].plain_text;
+              break;
+            }
           }
         }
       }

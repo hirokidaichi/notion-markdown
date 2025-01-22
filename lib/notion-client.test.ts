@@ -1,25 +1,40 @@
-import { assertEquals, assertRejects } from "https://deno.land/std@0.208.0/assert/mod.ts";
+import {
+  assertEquals,
+  assertRejects,
+} from "https://deno.land/std@0.208.0/assert/mod.ts";
 import { NotionClient } from "./notion-client.ts";
 import { MarkdownToBlocks } from "./markdown-to-blocks.ts";
 
 // モックの作成
 class MockNotionAPI {
   async append() {
-    return { id: "test-block-id" };
+    return await Promise.resolve({ id: "test-block-id" });
   }
 
   async retrieve() {
-    return {
+    return await Promise.resolve({
       properties: {
         title: {
-          title: [{ plain_text: "テストページ" }],
+          type: "title",
+          title: [{
+            type: "text",
+            text: { content: "テストページ" },
+            plain_text: "テストページ",
+            annotations: {
+              bold: false,
+              italic: false,
+              strikethrough: false,
+              underline: false,
+              code: false,
+            },
+          }],
         },
       },
-    };
+    });
   }
 
   async list() {
-    return {
+    return await Promise.resolve({
       results: [
         {
           type: "paragraph",
@@ -41,19 +56,19 @@ class MockNotionAPI {
           },
         },
       ],
-    };
+    });
   }
 }
 
 class MockClient {
   blocks = {
     children: {
-      append: async () => new MockNotionAPI().append(),
-      list: async () => new MockNotionAPI().list(),
+      append: async () => await new MockNotionAPI().append(),
+      list: async () => await new MockNotionAPI().list(),
     },
   };
   pages = {
-    retrieve: async () => new MockNotionAPI().retrieve(),
+    retrieve: async () => await new MockNotionAPI().retrieve(),
   };
 }
 
@@ -81,7 +96,7 @@ Deno.test("NotionClient - getPage 異常系", async () => {
       await client.getPage("test-page-id");
     },
     Error,
-    "API Error"
+    "API Error",
   );
 });
 
