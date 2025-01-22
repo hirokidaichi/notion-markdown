@@ -1,7 +1,11 @@
-#!/usr/bin/env -S deno run --allow-env --allow-net
+#!/usr/bin/env -S deno run --allow-env --allow-net --allow-read
 
 import { parse } from "https://deno.land/std@0.208.0/flags/mod.ts";
+import { load } from "https://deno.land/std@0.208.0/dotenv/mod.ts";
 import { NotionClient } from "./lib/notion-client.ts";
+
+// .envファイルを読み込む
+await load({ export: true });
 
 const HELP_MESSAGE = `
 notion-markdown - Notion pages to Markdown converter CLI
@@ -72,11 +76,13 @@ async function main() {
             console.error("Failed to append content to page");
             Deno.exit(1);
           }
-        } catch (error) {
+        } catch (error: unknown) {
           if (error instanceof Deno.errors.NotFound) {
             console.error(`Error: File '${file}' not found`);
-          } else {
+          } else if (error instanceof Error) {
             console.error("Error reading file:", error.message);
+          } else {
+            console.error("An unknown error occurred");
           }
           Deno.exit(1);
         }
@@ -86,8 +92,12 @@ async function main() {
         console.error("Error: Unknown command. Use --help for usage information");
         Deno.exit(1);
     }
-  } catch (error) {
-    console.error("Error:", error.message);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Error:", error.message);
+    } else {
+      console.error("An unknown error occurred");
+    }
     Deno.exit(1);
   }
 }
