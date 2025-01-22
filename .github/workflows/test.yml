@@ -11,12 +11,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Setup Deno
       uses: denoland/setup-deno@v1
       with:
-        deno-version: v1.x
+        deno-version: "1.39.1"
+
+    - name: Update lockfile
+      run: deno cache --reload --lock=deno.lock --lock-write main.ts cli.ts client.ts
 
     - name: Run tests
       run: deno test --allow-net --allow-env --allow-read
