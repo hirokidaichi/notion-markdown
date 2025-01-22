@@ -56,6 +56,53 @@ NOTION_DATABASE_ID=your_notion_database_id
 }
 ```
 
+## CLIツール
+
+NotionのページをMarkdown形式で操作するためのコマンドラインツールも提供しています。
+
+### インストール
+
+```bash
+# GitHubからリポジトリをクローン
+git clone https://github.com/hirokidaichi/notion-markdown.git
+cd notion-markdown
+
+# CLIツールのインストール（Denoが必要）
+deno install --allow-env --allow-net --allow-read -n notion-markdown ./cli.ts
+```
+
+### 使用方法
+
+環境変数`NOTION_TOKEN`を設定してから使用してください：
+
+```bash
+export NOTION_TOKEN=your_notion_api_token
+```
+
+#### ページの取得
+
+```bash
+# Notionページの内容をMarkdown形式で取得
+notion-markdown get <page-id>
+```
+
+#### ページへの追記
+
+```bash
+# Markdownファイルの内容をNotionページに追加
+notion-markdown append <page-id> <markdown-file>
+```
+
+### コマンド例
+
+```bash
+# ページの内容を取得してファイルに保存
+notion-markdown get 1234-5678-9abc > page.md
+
+# ファイルの内容をページに追加
+notion-markdown append 1234-5678-9abc new-content.md
+```
+
 ## 開発
 
 ```bash
