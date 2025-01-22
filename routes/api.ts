@@ -50,13 +50,24 @@ const auth = async (c: any, next: any) => {
   await next();
 };
 
-// すべてのルートに認証を適用
-api.use("/*", auth);
+// ヘルスチェックエンドポイント
+api.get("/health", (c) => {
+  return c.json({ status: "ok" });
+});
+
+// ルートパス
+api.get("/", (c) => {
+  return c.json({
+    name: "notion-markdown-api",
+    version: "1.0.0",
+    description: "Notion pages to Markdown converter API"
+  });
+});
+
+// /pages 以下のルートに認証を適用
+api.use("/pages/*", auth);
 
 // GET /api/pages/:pageId
-api.get("/", (c) => {
-  return c.json({ message: "Hello, World!" });
-});
 
 api.get("/pages/:pageId", validateUUID, async (c) => {
   try {
