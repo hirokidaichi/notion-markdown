@@ -1,0 +1,84 @@
+# Notion Markdown API Server
+
+## プロジェクトの概要
+このプロジェクトは、NotionのドキュメントをMarkdown形式で取得・更新するためのAPIサーバーです。
+Denoを使用して実装されており、Deno Deployを利用してデプロイされます。
+
+## ファイル構造と役割
+
+```
+.
+├── lib/                    # コアロジックを含むディレクトリ
+│   ├── block-to-markdown.ts       # Notionブロックをマークダウンに変換
+│   ├── markdown-to-blocks.ts      # マークダウンをNotionブロックに変換
+│   ├── notion-client.ts          # Notion APIクライアント
+│   └── types.ts                  # 型定義
+├── routes/                # APIルート定義
+│   └── api.ts                    # APIエンドポイントの実装
+├── main.ts               # アプリケーションのエントリーポイント
+└── deno.json            # Denoプロジェクト設定
+```
+
+## 開発環境
+
+### 必要な環境
+- Deno v1.x
+
+### 開発コマンド
+```bash
+# 開発サーバーの起動（ホットリロード有効）
+deno task dev
+
+# 本番サーバーの起動
+deno task start
+
+# テストの実行
+deno task test
+```
+
+## テスト環境
+- ユニットテストファイル: `*.test.ts`
+- GitHub Actionsによる自動テスト
+  - プッシュ時とPRのタイミングでテストが実行される
+  - Ubuntu Latest環境で実行
+
+## 依存関係
+- marked@9.1.6: マークダウンパーサー
+- hono@v3.11.7: Webフレームワーク
+- Deno標準ライブラリ@0.208.0
+
+## コーディング規約
+
+### フォーマット設定
+- インデント: スペース2個
+- 最大行長: 80文字
+- クォート: ダブルクォート
+- タブ: 使用しない
+
+### TypeScript設定
+- strict mode有効
+- strictNullChecks有効
+- noImplicitAny有効
+- noImplicitThis有効
+
+## 環境変数
+必須の環境変数:
+- NOTION_API_KEY: NotionのAPIキー
+- NOTION_DATABASE_ID: NotionのデータベースID（親ページを指定しない場合に使用）
+
+## .gitignore設定
+- .env ファイル（環境変数）
+
+## APIエンドポイント
+
+### GET /api/pages/:pageId
+- 指定されたIDのNotionドキュメントをMarkdown形式で取得
+
+### POST /api/pages/:pageId/append
+- 既存のNotionページにMarkdownコンテンツを追加
+
+## デプロイメント
+- Deno Deployを使用
+- GitHubリポジトリと連携
+- mainブランチへのプッシュで自動デプロイ
+- デプロイURL: https://notion-markdown.deno.dev
