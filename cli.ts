@@ -51,7 +51,7 @@ async function main() {
 
   try {
     switch (command) {
-      case "get":
+      case "get": {
         if (!pageId) {
           console.error("Error: pageId is required for get command");
           Deno.exit(1);
@@ -59,17 +59,21 @@ async function main() {
         const result = await notionClient.getPage(String(pageId));
         console.log(result.markdown);
         break;
+      }
 
       case "append":
         if (!pageId || !file) {
           console.error(
-            "Error: both pageId and file path are required for append command"
+            "Error: both pageId and file path are required for append command",
           );
           Deno.exit(1);
         }
         try {
           const content = await Deno.readTextFile(String(file));
-          const success = await notionClient.appendPage(String(pageId), content);
+          const success = await notionClient.appendPage(
+            String(pageId),
+            content,
+          );
           if (success) {
             console.log("Successfully appended content to page");
           } else {
@@ -89,7 +93,9 @@ async function main() {
         break;
 
       default:
-        console.error("Error: Unknown command. Use --help for usage information");
+        console.error(
+          "Error: Unknown command. Use --help for usage information",
+        );
         Deno.exit(1);
     }
   } catch (error: unknown) {
