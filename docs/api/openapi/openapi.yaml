@@ -1,0 +1,290 @@
+openapi: 3.1.0
+info:
+  title: Notion Markdown API
+  description: |
+    NotionのページをMarkdown形式で取得・更新するためのAPI。
+    このAPIを使用することで、NotionのページをMarkdownとして扱い、
+    双方向の変換と同期が可能になります。
+  version: 1.0.0
+  contact:
+    name: notion-markdown Support
+    url: https://github.com/hirokidaichi/notion-markdown/issues
+
+servers:
+  - url: http://localhost:3000
+    description: 開発サーバー
+  - url: https://api.notion-markdown.example.com
+    description: 本番サーバー（例）
+
+security:
+  - ApiKeyAuth: []
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: |
+        NotionのAPIトークンをBearer形式で指定します。
+        例: `Bearer your-notion-api-token`
+
+  schemas:
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: エラーコード
+          example: unauthorized
+        message:
+          type: string
+          description: エラーメッセージ
+          example: Invalid API key
+      required:
+        - error
+        - message
+
+    PageMetadata:
+      type: object
+      properties:
+        title:
+          type: string
+          description: ページのタイトル
+          example: サンプルページ
+        created_at:
+          type: string
+          format: date-time
+          description: 作成日時
+          example: "2024-02-12T10:00:00Z"
+        updated_at:
+          type: string
+          format: date-time
+          description: 更新日時
+          example: "2024-02-12T10:30:00Z"
+      required:
+        - title
+        - created_at
+        - updated_at
+
+    MarkdownContent:
+      type: object
+      properties:
+        markdown:
+          type: string
+          description: Markdown形式のコンテンツ
+          example: |
+            # サンプルページ
+            
+            これはNotionからMarkdownとして取得したコンテンツです。
+            
+            ## セクション1
+            
+            - リスト項目1
+            - リスト項目2
+        metadata:
+          $ref: "#/components/schemas/PageMetadata"
+      required:
+        - markdown
+        - metadata
+
+paths:
+  /api/pages/{pageId}:
+    parameters:
+      - name: pageId
+        in: path
+        required: true
+        schema:
+          type: string
+        description: NotionのページID
+        example: 1234-5678-9abc
+    
+    get:
+      summary: Notionページの取得
+      description: |
+        指定されたIDのNotionページをMarkdown形式で取得します。
+        ページの内容とメタデータが返されます。
+      operationId: getPage
+      tags:
+        - pages
+      responses:
+        "200":
+          description: 正常にページを取得
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MarkdownContent"
+        "401":
+          description: 認証エラー
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: ページが見つからない
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "429":
+          description: レート制限超過
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    
+    post:
+      summary: ページの更新
+      description: |
+        指定されたIDのNotionページをMarkdown形式で更新します。
+        既存のコンテンツは上書きされます。
+      operationId: updatePage
+      tags:
+        - pages
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                markdown:
+                  type: string
+                  description: 更新するMarkdownコンテンツ
+                  example: |
+                    # 更新されたページ
+                    
+                    これは更新後のコンテンツです。
+              required:
+                - markdown
+      responses:
+        "200":
+          description: 正常に更新
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MarkdownContent"
+        "401":
+          description: 認証エラー
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: ページが見つからない
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /api/pages/{pageId}/append:
+    parameters:
+      - name: pageId
+        in: path
+        required: true
+        schema:
+          type: string
+        description: NotionのページID
+        example: 1234-5678-9abc
+    
+    post:
+      summary: ページへの追記
+      description: |
+        指定されたIDのNotionページに新しいコンテンツを追記します。
+        既存のコンテンツは保持されます。
+      operationId: appendToPage
+      tags:
+        - pages
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                markdown:
+                  type: string
+                  description: 追記するMarkdownコンテンツ
+                  example: |
+                    ## 新しいセクション
+                    
+                    これは追記されたコンテンツです。
+              required:
+                - markdown
+      responses:
+        "200":
+          description: 正常に追記
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MarkdownContent"
+        "401":
+          description: 認証エラー
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: ページが見つからない
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /api/pages:
+    post:
+      summary: 新規ページの作成
+      description: |
+        新しいNotionページをMarkdown形式で作成します。
+        親ページIDを指定することで、特定のページ配下に作成することができます。
+      operationId: createPage
+      tags:
+        - pages
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  description: ページのタイトル
+                  example: 新しいページ
+                markdown:
+                  type: string
+                  description: ページのMarkdownコンテンツ
+                  example: |
+                    # 新しいページ
+                    
+                    これは新しく作成されたページです。
+                parentId:
+                  type: string
+                  description: 親ページのID（オプション）
+                  example: 5678-1234-def0
+              required:
+                - title
+                - markdown
+      responses:
+        "201":
+          description: 正常に作成
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MarkdownContent"
+        "401":
+          description: 認証エラー
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: 親ページが見つからない
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+tags:
+  - name: pages
+    description: ページの操作に関するエンドポイント
