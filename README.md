@@ -32,12 +32,15 @@ NOTION_DATABASE_ID=your_notion_database_id
 ## API エンドポイント
 
 ### GET /api/pages/:pageId
+
 指定されたIDのNotionドキュメントをMarkdown形式で取得します。
 
 ### POST /api/pages/:pageId/append
+
 既存のNotionページにMarkdownコンテンツを追加します。
 
 リクエスト例：
+
 ```json
 {
   "markdown": "# 新しいセクション\n\nここに追加したいコンテンツを記述"
@@ -45,9 +48,11 @@ NOTION_DATABASE_ID=your_notion_database_id
 ```
 
 ### POST /api/pages
+
 新しいNotionページをMarkdownコンテンツから作成します。
 
 リクエスト例：
+
 ```json
 {
   "title": "新しいページ",
@@ -111,9 +116,22 @@ deno task dev
 
 # 本番サーバーの起動
 deno task start
+
+# テストの実行
+deno task test
+
+# 特定のテストファイルのみ実行
+deno test --allow-net --allow-env --allow-read ./lib/notion-client.test.ts
 ```
 
+テストファイルは `lib` ディレクトリ内に配置されており、以下のテストが実装されています：
+
+- `lib/notion-client.test.ts`: Notion APIクライアントのテスト
+- `lib/block-to-markdown.test.ts`: NotionブロックからMarkdownへの変換テスト
+- `lib/markdown-to-blocks.test.ts`: MarkdownからNotionブロックへの変換テスト
+
 ## 注意点
+
 - .envに環境変数があるが、それはセキュリティの理由でリポジトリには公開しないのでファイル中にその中身が含まれるようには**絶対に**してはならない。
 
 ### Deno Deployでの環境変数の設定
