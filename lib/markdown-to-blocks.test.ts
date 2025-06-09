@@ -10,7 +10,7 @@ Deno.test("MarkdownToBlocks - パラグラフの変換", () => {
   assertEquals(result.blocks[0].type, "paragraph");
   assertEquals(
     (result.blocks[0] as any).paragraph.rich_text[0].text.content,
-    "これはテストです。"
+    "これはテストです。",
   );
 });
 
@@ -73,4 +73,21 @@ console.log("Hello");
   const result = converter.convert(markdown);
   assertEquals(result.errors, undefined);
   assertEquals(result.blocks.length > 0, true);
+});
+
+Deno.test("MarkdownToBlocks - 2000文字制限の分割", () => {
+  const converter = new MarkdownToBlocks();
+  // 2100文字のテキストを生成
+  const longText = "あ".repeat(2100);
+  const markdown = longText;
+  const result = converter.convert(markdown);
+
+  // パラグラフブロックが1つ生成される
+  assertEquals(result.blocks.length, 1);
+  assertEquals(result.blocks[0].type, "paragraph");
+  // rich_textが2つに分割されている（2000+100）
+  const richTexts = (result.blocks[0] as any).paragraph.rich_text;
+  assertEquals(richTexts.length, 2);
+  assertEquals(richTexts[0].text.content.length, 2000);
+  assertEquals(richTexts[1].text.content.length, 100);
 });

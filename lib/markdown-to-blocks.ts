@@ -1,13 +1,13 @@
 import { marked, Token, Tokens } from "https://esm.sh/marked@9.1.6";
 import {
-  NotionBlocks,
-  NotionRichText,
   ConversionResult,
+  NotionBlocks,
+  NotionBulletedListItemBlock,
   NotionHeading1Block,
   NotionHeading2Block,
   NotionHeading3Block,
-  NotionBulletedListItemBlock,
   NotionNumberedListItemBlock,
+  NotionRichText,
 } from "./types.ts";
 
 export class MarkdownToBlocks {
@@ -66,12 +66,17 @@ export class MarkdownToBlocks {
    * テキストをリッチテキストに変換
    */
   private convertToRichText(text: string): NotionRichText[] {
-    return [{
-      type: "text",
-      text: {
-        content: text,
-      },
-    }];
+    const MAX_LENGTH = 2000;
+    const result: NotionRichText[] = [];
+    for (let i = 0; i < text.length; i += MAX_LENGTH) {
+      result.push({
+        type: "text",
+        text: {
+          content: text.slice(i, i + MAX_LENGTH),
+        },
+      });
+    }
+    return result;
   }
 
   /**
