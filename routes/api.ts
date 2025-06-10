@@ -60,7 +60,7 @@ api.get("/", (c) => {
   return c.json({
     name: "notion-markdown-api",
     version: "1.0.0",
-    description: "Notion pages to Markdown converter API"
+    description: "Notion pages to Markdown converter API",
   });
 });
 
@@ -80,7 +80,13 @@ api.get("/pages/:pageId", validateUUID, async (c) => {
     return c.json(response);
   } catch (error) {
     console.error("Error getting page:", error);
-    return c.json({ error: "Failed to get page" }, 500);
+    const errorMessage = error instanceof Error
+      ? error.message
+      : "Unknown error occurred";
+    return c.json({
+      error: "Failed to get page",
+      details: errorMessage,
+    }, 500);
   }
 });
 
@@ -89,14 +95,20 @@ api.post("/pages/:pageId/append", validateUUID, async (c) => {
   try {
     const pageId = c.req.param("pageId");
     const body: AppendPageRequest = await c.req.json();
-    const success = await notionClient.appendPage(pageId, body.markdown);
+    await notionClient.appendPage(pageId, body.markdown);
     const response: AppendPageResponse = {
-      success,
+      success: true,
     };
     return c.json(response);
   } catch (error) {
     console.error("Error appending to page:", error);
-    return c.json({ error: "Failed to append to page" }, 500);
+    const errorMessage = error instanceof Error
+      ? error.message
+      : "Unknown error occurred";
+    return c.json({
+      error: "Failed to append to page",
+      details: errorMessage,
+    }, 500);
   }
 });
 

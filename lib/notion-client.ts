@@ -1,10 +1,10 @@
 import { Client } from "https://deno.land/x/notion_sdk@v2.2.3/src/mod.ts";
-import { 
-  BlockObjectRequest, 
-  LanguageRequest,
+import {
+  BlockObjectRequest,
   BlockObjectResponse,
-  RichTextItemResponse,
+  LanguageRequest,
   PageObjectResponse,
+  RichTextItemResponse,
 } from "https://deno.land/x/notion_sdk@v2.2.3/src/api-endpoints.ts";
 import { BlockToMarkdown } from "./block-to-markdown.ts";
 import { NotionBlocks, NotionRichText } from "./types.ts";
@@ -22,8 +22,10 @@ export class NotionClient {
     this.blockToMarkdown = new BlockToMarkdown();
   }
 
-  private convertRichTextResponse(richText: RichTextItemResponse[]): NotionRichText[] {
-    return richText.map(item => {
+  private convertRichTextResponse(
+    richText: RichTextItemResponse[],
+  ): NotionRichText[] {
+    return richText.map((item) => {
       const richTextItem: NotionRichText = {
         type: "text",
         text: {
@@ -49,66 +51,68 @@ export class NotionClient {
     });
   }
 
-  private convertBlockResponse(block: BlockObjectResponse): NotionBlocks | null {
-    if (!('type' in block)) return null;
+  private convertBlockResponse(
+    block: BlockObjectResponse,
+  ): NotionBlocks | null {
+    if (!("type" in block)) return null;
 
-    const convertedRichText = (richText: RichTextItemResponse[]) => 
+    const convertedRichText = (richText: RichTextItemResponse[]) =>
       this.convertRichTextResponse(richText);
 
     switch (block.type) {
-      case 'paragraph':
+      case "paragraph":
         return {
-          type: 'paragraph',
+          type: "paragraph",
           paragraph: {
             rich_text: convertedRichText(block.paragraph.rich_text),
           },
         };
-      case 'heading_1':
+      case "heading_1":
         return {
-          type: 'heading_1',
+          type: "heading_1",
           heading_1: {
             rich_text: convertedRichText(block.heading_1.rich_text),
           },
         };
-      case 'heading_2':
+      case "heading_2":
         return {
-          type: 'heading_2',
+          type: "heading_2",
           heading_2: {
             rich_text: convertedRichText(block.heading_2.rich_text),
           },
         };
-      case 'heading_3':
+      case "heading_3":
         return {
-          type: 'heading_3',
+          type: "heading_3",
           heading_3: {
             rich_text: convertedRichText(block.heading_3.rich_text),
           },
         };
-      case 'bulleted_list_item':
+      case "bulleted_list_item":
         return {
-          type: 'bulleted_list_item',
+          type: "bulleted_list_item",
           bulleted_list_item: {
             rich_text: convertedRichText(block.bulleted_list_item.rich_text),
           },
         };
-      case 'numbered_list_item':
+      case "numbered_list_item":
         return {
-          type: 'numbered_list_item',
+          type: "numbered_list_item",
           numbered_list_item: {
             rich_text: convertedRichText(block.numbered_list_item.rich_text),
           },
         };
-      case 'code':
+      case "code":
         return {
-          type: 'code',
+          type: "code",
           code: {
             rich_text: convertedRichText(block.code.rich_text),
             language: block.code.language,
           },
         };
-      case 'quote':
+      case "quote":
         return {
-          type: 'quote',
+          type: "quote",
           quote: {
             rich_text: convertedRichText(block.quote.rich_text),
           },
@@ -118,8 +122,10 @@ export class NotionClient {
     }
   }
 
-  private convertToNotionBlocks(blocks: ReturnType<MarkdownToBlocks["convert"]>["blocks"]): BlockObjectRequest[] {
-    return blocks.map(block => {
+  private convertToNotionBlocks(
+    blocks: ReturnType<MarkdownToBlocks["convert"]>["blocks"],
+  ): BlockObjectRequest[] {
+    return blocks.map((block) => {
       if (block.type === "code") {
         return {
           ...block,
@@ -133,23 +139,28 @@ export class NotionClient {
     });
   }
 
-  async getPage(pageId: NotionPageId): Promise<{ title: string; markdown: string }> {
+  async getPage(
+    pageId: NotionPageId,
+  ): Promise<{ title: string; markdown: string }> {
     try {
       // ページ情報の取得
       const page = await this.client.pages.retrieve({ page_id: pageId });
-      
+
       // タイトルの取得
       let title = "";
-      if ('properties' in page) {
-        const properties = page.properties as PageObjectResponse['properties'];
+      if ("properties" in page) {
+        const properties = page.properties as PageObjectResponse["properties"];
         // titleプロパティを優先的に探す
-        if (properties.title?.type === 'title' && properties.title.title?.[0]?.plain_text) {
+        if (
+          properties.title?.type === "title" &&
+          properties.title.title?.[0]?.plain_text
+        ) {
           title = properties.title.title[0].plain_text;
         }
         // titleが見つからない場合は他のプロパティを探す
         if (!title) {
           for (const [_, prop] of Object.entries(properties)) {
-            if (prop.type === 'rich_text' && prop.rich_text?.[0]?.plain_text) {
+            if (prop.type === "rich_text" && prop.rich_text?.[0]?.plain_text) {
               title = prop.rich_text[0].plain_text;
               break;
             }
@@ -164,7 +175,7 @@ export class NotionClient {
 
       // ブロックの変換
       const blocks = blocksResponse.results
-        .map(block => this.convertBlockResponse(block as BlockObjectResponse))
+        .map((block) => this.convertBlockResponse(block as BlockObjectResponse))
         .filter((block): block is NotionBlocks => block !== null);
 
       // マークダウンに変換
@@ -180,25 +191,22 @@ export class NotionClient {
     }
   }
 
-  async appendPage(pageId: NotionPageId, markdown: string): Promise<boolean> {
-    try {
-      const { blocks, errors } = this.converter.convert(markdown);
-      if (errors && errors.length > 0) {
-        console.error("Conversion errors:", errors);
-        return false;
-      }
+  async appendPage(pageId: NotionPageId, markdown: string): Promise<void> {
+    const { blocks, errors } = this.converter.convert(markdown);
+    if (errors && errors.length > 0) {
+      throw new Error(`Markdown conversion failed: ${errors.join(", ")}`);
+    }
 
-      const notionBlocks = this.convertToNotionBlocks(blocks);
+    const notionBlocks = this.convertToNotionBlocks(blocks);
 
+    // Split blocks into chunks of 100 to respect Notion API limit
+    const chunkSize = 100;
+    for (let i = 0; i < notionBlocks.length; i += chunkSize) {
+      const chunk = notionBlocks.slice(i, i + chunkSize);
       await this.client.blocks.children.append({
         block_id: pageId,
-        children: notionBlocks,
+        children: chunk,
       });
-
-      return true;
-    } catch (error) {
-      console.error("Failed to append page:", error);
-      return false;
     }
   }
 }

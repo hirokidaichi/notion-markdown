@@ -88,7 +88,7 @@ Deno.test("NotionClient - getPage 異常系", async () => {
   // @ts-ignore: プライベートプロパティへのアクセス
   client.client = new MockClient();
   // @ts-ignore: プライベートプロパティへのアクセス
-  client.client.pages.retrieve =  () => {
+  client.client.pages.retrieve = () => {
     throw new Error("API Error");
   };
 
@@ -108,9 +108,9 @@ Deno.test("NotionClient - appendPage 正常系", async () => {
   client.client = new MockClient();
 
   const markdown = "# テスト\nこれはテストです。";
-  const result = await client.appendPage("test-page-id", markdown);
+  await client.appendPage("test-page-id", markdown);
 
-  assertEquals(result, true);
+  // No exception thrown means success
 });
 
 Deno.test("NotionClient - appendPage 異常系（変換エラー）", async () => {
@@ -123,8 +123,13 @@ Deno.test("NotionClient - appendPage 異常系（変換エラー）", async () =
     }),
   };
 
-  const result = await client.appendPage("test-page-id", "# テスト");
-  assertEquals(result, false);
+  await assertRejects(
+    async () => {
+      await client.appendPage("test-page-id", "# テスト");
+    },
+    Error,
+    "Markdown conversion failed: テストエラー",
+  );
 });
 
 Deno.test("NotionClient - convertToNotionBlocks", () => {
@@ -138,5 +143,8 @@ Deno.test("NotionClient - convertToNotionBlocks", () => {
 
   assertEquals(notionBlocks.length, 1);
   assertEquals(notionBlocks[0].type, "code");
-  assertEquals((notionBlocks[0] as NotionCodeBlock).code.language, "typescript");
+  assertEquals(
+    (notionBlocks[0] as NotionCodeBlock).code.language,
+    "typescript",
+  );
 });

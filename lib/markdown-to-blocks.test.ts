@@ -1,5 +1,6 @@
 import { assertEquals } from "https://deno.land/std@0.208.0/assert/mod.ts";
 import { MarkdownToBlocks } from "./markdown-to-blocks.ts";
+import { NotionCodeBlock, NotionParagraphBlock } from "./types.ts";
 
 Deno.test("MarkdownToBlocks - パラグラフの変換", () => {
   const converter = new MarkdownToBlocks();
@@ -9,7 +10,8 @@ Deno.test("MarkdownToBlocks - パラグラフの変換", () => {
   assertEquals(result.blocks.length, 1);
   assertEquals(result.blocks[0].type, "paragraph");
   assertEquals(
-    (result.blocks[0] as any).paragraph.rich_text[0].text.content,
+    (result.blocks[0] as NotionParagraphBlock).paragraph.rich_text[0].text
+      .content,
     "これはテストです。",
   );
 });
@@ -42,7 +44,10 @@ Deno.test("MarkdownToBlocks - コードブロックの変換", () => {
 
   assertEquals(result.blocks.length, 1);
   assertEquals(result.blocks[0].type, "code");
-  assertEquals((result.blocks[0] as any).code.language, "typescript");
+  assertEquals(
+    (result.blocks[0] as NotionCodeBlock).code.language,
+    "typescript",
+  );
 });
 
 Deno.test("MarkdownToBlocks - 引用の変換", () => {
@@ -86,7 +91,8 @@ Deno.test("MarkdownToBlocks - 2000文字制限の分割", () => {
   assertEquals(result.blocks.length, 1);
   assertEquals(result.blocks[0].type, "paragraph");
   // rich_textが2つに分割されている（2000+100）
-  const richTexts = (result.blocks[0] as any).paragraph.rich_text;
+  const richTexts =
+    (result.blocks[0] as NotionParagraphBlock).paragraph.rich_text;
   assertEquals(richTexts.length, 2);
   assertEquals(richTexts[0].text.content.length, 2000);
   assertEquals(richTexts[1].text.content.length, 100);
