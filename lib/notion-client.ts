@@ -16,10 +16,66 @@ export class NotionClient {
   private converter: MarkdownToBlocks;
   private blockToMarkdown: BlockToMarkdown;
 
+  // Notion supported language mapping
+  private languageMapping: Record<string, string> = {
+    "cpp": "c++",
+    "cc": "c++",
+    "cxx": "c++",
+    "c++": "c++",
+    "cs": "c#",
+    "csharp": "c#",
+    "js": "javascript",
+    "jsx": "javascript",
+    "javascript": "javascript",
+    "ts": "typescript",
+    "tsx": "typescript",
+    "typescript": "typescript",
+    "py": "python",
+    "python": "python",
+    "rb": "ruby",
+    "ruby": "ruby",
+    "sh": "shell",
+    "bash": "bash",
+    "zsh": "shell",
+    "fish": "shell",
+    "ps1": "powershell",
+    "yml": "yaml",
+    "md": "markdown",
+    "tex": "latex",
+    "hs": "haskell",
+    "rs": "rust",
+    "go": "go",
+    "java": "java",
+    "kt": "kotlin",
+    "scala": "scala",
+    "clj": "clojure",
+    "pl": "perl",
+    "php": "php",
+    "r": "r",
+    "sql": "sql",
+    "html": "html",
+    "css": "css",
+    "scss": "scss",
+    "sass": "sass",
+    "less": "less",
+    "json": "json",
+    "xml": "xml",
+    "dockerfile": "docker",
+    "makefile": "makefile",
+    "text": "plain text",
+    "txt": "plain text",
+    "": "plain text", // fallback for empty language
+  };
+
   constructor(apiKey: string) {
     this.client = new Client({ auth: apiKey });
     this.converter = new MarkdownToBlocks();
     this.blockToMarkdown = new BlockToMarkdown();
+  }
+
+  private mapLanguage(language: string): string {
+    const normalizedLang = language.toLowerCase().trim();
+    return this.languageMapping[normalizedLang] || "plain text";
   }
 
   private convertRichTextResponse(
@@ -131,7 +187,7 @@ export class NotionClient {
           ...block,
           code: {
             ...block.code,
-            language: block.code.language as LanguageRequest,
+            language: this.mapLanguage(block.code.language) as LanguageRequest,
           },
         };
       }

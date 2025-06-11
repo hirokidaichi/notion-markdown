@@ -132,6 +132,19 @@ Deno.test("NotionClient - appendPage 異常系（変換エラー）", async () =
   );
 });
 
+Deno.test("NotionClient - mapLanguage", () => {
+  const client = new NotionClient("dummy-api-key");
+  
+  // @ts-ignore: プライベートメソッドへのアクセス
+  assertEquals(client.mapLanguage("cpp"), "c++");
+  // @ts-ignore: プライベートメソッドへのアクセス
+  assertEquals(client.mapLanguage("js"), "javascript");
+  // @ts-ignore: プライベートメソッドへのアクセス
+  assertEquals(client.mapLanguage("unknown"), "plain text");
+  // @ts-ignore: プライベートメソッドへのアクセス
+  assertEquals(client.mapLanguage(""), "plain text");
+});
+
 Deno.test("NotionClient - convertToNotionBlocks", () => {
   const client = new NotionClient("dummy-api-key");
   const converter = new MarkdownToBlocks();
@@ -146,5 +159,22 @@ Deno.test("NotionClient - convertToNotionBlocks", () => {
   assertEquals(
     (notionBlocks[0] as NotionCodeBlock).code.language,
     "typescript",
+  );
+});
+
+Deno.test("NotionClient - convertToNotionBlocks with cpp language", () => {
+  const client = new NotionClient("dummy-api-key");
+  const converter = new MarkdownToBlocks();
+  const markdown = "```cpp\nint main() { return 0; }\n```";
+  const { blocks } = converter.convert(markdown);
+
+  // @ts-ignore: プライベートメソッドへのアクセス
+  const notionBlocks = client.convertToNotionBlocks(blocks);
+
+  assertEquals(notionBlocks.length, 1);
+  assertEquals(notionBlocks[0].type, "code");
+  assertEquals(
+    (notionBlocks[0] as NotionCodeBlock).code.language,
+    "c++",
   );
 });
