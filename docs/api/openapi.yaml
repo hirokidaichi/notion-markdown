@@ -1,0 +1,331 @@
+openapi: 3.0.3
+info:
+  title: Notion Markdown API
+  description: |
+    A Deno-based TypeScript API that provides bidirectional conversion between Notion pages and Markdown format.
+    
+    This API enables you to:
+    - Retrieve Notion pages as Markdown content
+    - Append Markdown content to existing Notion pages
+    
+    All endpoints require Bearer token authentication when the API_KEY environment variable is configured.
+  version: 1.0.0
+  contact:
+    name: Notion Markdown API Support
+  license:
+    name: MIT
+
+servers:
+  - url: http://localhost:8000
+    description: Development server
+  - url: https://your-api-domain.com
+    description: Production server
+
+security:
+  - bearerAuth: []
+
+paths:
+  /health:
+    get:
+      summary: Health check endpoint
+      description: Returns the health status of the API server
+      tags:
+        - Health
+      security: []
+      responses:
+        '200':
+          description: API is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+
+  /api:
+    get:
+      summary: API information
+      description: Returns basic information about the API
+      tags:
+        - Info
+      security: []
+      responses:
+        '200':
+          description: API information
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  name:
+                    type: string
+                    example: notion-markdown-api
+                  version:
+                    type: string
+                    example: 1.0.0
+                  description:
+                    type: string
+                    example: Notion pages to Markdown converter API
+
+  /api/health:
+    get:
+      summary: API health check
+      description: Returns the health status of the API
+      tags:
+        - Health
+      responses:
+        '200':
+          description: API is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+
+  /api/pages/{pageId}:
+    get:
+      summary: Get Notion page as Markdown
+      description: |
+        Retrieves a Notion page and converts it to Markdown format.
+        
+        The page ID must be in UUID format (e.g., 12345678-1234-1234-1234-123456789abc).
+        
+        Returns both the page title and the complete page content in Markdown format.
+      tags:
+        - Pages
+      parameters:
+        - name: pageId
+          in: path
+          required: true
+          description: UUID of the Notion page to retrieve
+          schema:
+            type: string
+            format: uuid
+            pattern: '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
+          example: 12345678-1234-1234-1234-123456789abc
+      responses:
+        '200':
+          description: Page retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetPageResponse'
+        '400':
+          description: Invalid page ID format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "Invalid page ID format. Expected UUID format."
+        '401':
+          description: Authentication required or invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                missing_auth:
+                  summary: Missing authorization header
+                  value:
+                    error: "Authorization header is missing or invalid"
+                invalid_token:
+                  summary: Invalid API key
+                  value:
+                    error: "Invalid API key"
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithDetails'
+              example:
+                error: "Failed to get page"
+                details: "Page not found or access denied"
+
+  /api/pages/{pageId}/append:
+    post:
+      summary: Append Markdown content to Notion page
+      description: |
+        Appends Markdown content to an existing Notion page.
+        
+        The page ID must be in UUID format. The Markdown content will be converted to Notion blocks
+        and appended to the end of the specified page.
+        
+        Supported Markdown elements:
+        - Headings (# ## ###)
+        - Paragraphs
+        - Lists (bulleted and numbered)
+        - Code blocks with syntax highlighting
+        - Quotes
+        - TODO items
+        - Images (external URLs)
+        - Rich text formatting (bold, italic, strikethrough, underline, inline code)
+      tags:
+        - Pages
+      parameters:
+        - name: pageId
+          in: path
+          required: true
+          description: UUID of the Notion page to append content to
+          schema:
+            type: string
+            format: uuid
+            pattern: '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
+          example: 12345678-1234-1234-1234-123456789abc
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AppendPageRequest'
+      responses:
+        '200':
+          description: Content appended successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppendPageResponse'
+        '400':
+          description: Invalid page ID format or request body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "Invalid page ID format. Expected UUID format."
+        '401':
+          description: Authentication required or invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                missing_auth:
+                  summary: Missing authorization header
+                  value:
+                    error: "Authorization header is missing or invalid"
+                invalid_token:
+                  summary: Invalid API key
+                  value:
+                    error: "Invalid API key"
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseWithDetails'
+              example:
+                error: "Failed to append to page"
+                details: "Page not found or insufficient permissions"
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: |
+        Bearer token authentication using API key.
+        
+        Set the API_KEY environment variable on the server to enable authentication.
+        Include the token in the Authorization header: `Authorization: Bearer YOUR_API_KEY`
+
+  schemas:
+    GetPageResponse:
+      type: object
+      required:
+        - markdown
+        - title
+      properties:
+        markdown:
+          type: string
+          description: The complete page content converted to Markdown format
+          example: |
+            # My Page Title
+            
+            This is a paragraph with **bold** and *italic* text.
+            
+            ## Section Header
+            
+            - Bullet point 1
+            - Bullet point 2
+            
+            ```typescript
+            console.log("Hello, World!");
+            ```
+        title:
+          type: string
+          description: The title of the Notion page
+          example: "My Page Title"
+
+    AppendPageRequest:
+      type: object
+      required:
+        - markdown
+      properties:
+        markdown:
+          type: string
+          description: Markdown content to append to the page
+          example: |
+            ## New Section
+            
+            This content will be added to the end of the page.
+            
+            - New bullet point
+            - Another point
+            
+            ```python
+            print("Hello from Python!")
+            ```
+
+    AppendPageResponse:
+      type: object
+      required:
+        - success
+      properties:
+        success:
+          type: boolean
+          description: Indicates whether the append operation was successful
+          example: true
+
+    ErrorResponse:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          description: Error message describing what went wrong
+          example: "Invalid page ID format. Expected UUID format."
+
+    ErrorResponseWithDetails:
+      type: object
+      required:
+        - error
+        - details
+      properties:
+        error:
+          type: string
+          description: High-level error message
+          example: "Failed to get page"
+        details:
+          type: string
+          description: Detailed error information
+          example: "Page not found or access denied"
+
+tags:
+  - name: Health
+    description: Health check endpoints
+  - name: Info
+    description: API information endpoints
+  - name: Pages
+    description: Notion page operations
+
+externalDocs:
+  description: Find more info about Notion API
+  url: https://developers.notion.com/
