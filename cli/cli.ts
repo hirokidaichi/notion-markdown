@@ -2,7 +2,7 @@
 
 import { parse } from "https://deno.land/std@0.208.0/flags/mod.ts";
 import { load } from "https://deno.land/std@0.208.0/dotenv/mod.ts";
-import { NotionClient } from "./lib/notion-client.ts";
+import { NotionClient } from "../src/lib/notion-client.ts";
 
 // .envファイルを読み込む
 await load({ export: true });

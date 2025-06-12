@@ -19,9 +19,9 @@ deno task start
 deno task test
 
 # Run specific test file
-deno test --allow-net --allow-env --allow-read ./lib/notion-client.test.ts
-deno test --allow-net --allow-env --allow-read ./lib/block-to-markdown.test.ts
-deno test --allow-net --allow-env --allow-read ./lib/markdown-to-blocks.test.ts
+deno test --allow-net --allow-env --allow-read ./src/lib/notion-client.test.ts
+deno test --allow-net --allow-env --allow-read ./src/lib/block-to-markdown.test.ts
+deno test --allow-net --allow-env --allow-read ./src/lib/markdown-to-blocks.test.ts
 
 # Format code
 deno fmt
@@ -30,18 +30,18 @@ deno fmt
 deno lint
 
 # Install CLI tool
-deno install --allow-env --allow-net --allow-read -n notion-markdown ./cli.ts
+deno install --allow-env --allow-net --allow-read -n notion-markdown ./cli/cli.ts
 ```
 
 ## Architecture
 
 ### Core Components
 
-- **NotionClient** (`lib/notion-client.ts`): Main service class that orchestrates Notion API interactions and conversions
-- **BlockToMarkdown** (`lib/block-to-markdown.ts`): Converts Notion blocks to Markdown format
-- **MarkdownToBlocks** (`lib/markdown-to-blocks.ts`): Converts Markdown to Notion block structures
-- **API Server** (`main.ts` + `routes/api.ts`): Hono-based HTTP API with authentication middleware
-- **CLI Tool** (`cli.ts`): Command-line interface for direct page operations
+- **NotionClient** (`src/lib/notion-client.ts`): Main service class that orchestrates Notion API interactions and conversions
+- **BlockToMarkdown** (`src/lib/block-to-markdown.ts`): Converts Notion blocks to Markdown format
+- **MarkdownToBlocks** (`src/lib/markdown-to-blocks.ts`): Converts Markdown to Notion block structures
+- **API Server** (`src/main.ts` + `src/routes/api.ts`): Hono-based HTTP API with authentication middleware
+- **CLI Tool** (`cli/cli.ts`): Command-line interface for direct page operations
 
 ### Data Flow
 
@@ -63,8 +63,8 @@ The project requires these environment variables:
 - All API endpoints under `/pages/*` require Bearer token authentication when `API_KEY` is set
 - Page IDs are validated as UUIDs before processing
 - Error handling with structured JSON responses in API, console output in CLI
-- TypeScript strict mode with comprehensive type definitions in `lib/types.ts`
+- TypeScript strict mode with comprehensive type definitions in `src/lib/types.ts`
 
 ## Testing Strategy
 
-Tests are located in the `lib/` directory alongside source files, using Deno's built-in test runner. Each core conversion module has dedicated test coverage for various Notion block types and Markdown patterns.
+Tests are located in the `src/lib/` directory alongside source files, using Deno's built-in test runner. Each core conversion module has dedicated test coverage for various Notion block types and Markdown patterns.

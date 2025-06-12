@@ -1,4 +1,4 @@
-import { NotionClient } from "./lib/notion-client.ts";
+import { NotionClient } from "../src/lib/notion-client.ts";
 import { load } from "https://deno.land/std@0.208.0/dotenv/mod.ts";
 
 // 環境変数を読み込む
