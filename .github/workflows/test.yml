@@ -2,24 +2,24 @@ name: Test
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   test:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Setup Deno
-      uses: denoland/setup-deno@v1
-      with:
-        deno-version: "1.39.1"
+      - name: Setup Deno
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: "1.39.1"
 
-    - name: Update lockfile
-      run: deno cache --reload --lock=deno.lock --lock-write main.ts cli.ts client.ts
+      - name: Update lockfile
+        run: deno cache --reload --lock=deno.lock --lock-write main.ts cli.ts client.ts
 
-    - name: Run tests
-      run: deno test --allow-net --allow-env --allow-read
+      - name: Run tests
+        run: deno test --allow-net --allow-env --allow-read

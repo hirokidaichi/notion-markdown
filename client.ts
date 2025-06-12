@@ -39,7 +39,7 @@ This is a test content added at ${new Date().toISOString()}
 - API verification
 - Real-time feedback
 `;
-    
+
     const appendResult = await notionClient.appendPage(pageId, testContent);
     if (appendResult) {
       console.log("✓ Successfully appended content to page\n");
@@ -48,7 +48,6 @@ This is a test content added at ${new Date().toISOString()}
     }
 
     console.log("All tests completed successfully! 🎉");
-
   } catch (error: unknown) {
     if (error instanceof Error) {
       console.error("Error during API test:", error.message);

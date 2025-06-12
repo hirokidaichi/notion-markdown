@@ -46,10 +46,10 @@ async function main() {
   try {
     console.log("Adding example markdown to the page...");
     const success = await client.appendPage(pageId, exampleMarkdown);
-    
+
     if (success) {
       console.log("Successfully added example markdown!");
-      
+
       // 更新されたページの内容を確認
       console.log("\nUpdated page content:");
       const result = await client.getPage(pageId);

@@ -1,14 +1,14 @@
 import {
   NotionBlocks,
-  NotionRichText,
-  NotionParagraphBlock,
+  NotionBulletedListItemBlock,
+  NotionCodeBlock,
   NotionHeading1Block,
   NotionHeading2Block,
   NotionHeading3Block,
-  NotionBulletedListItemBlock,
   NotionNumberedListItemBlock,
-  NotionCodeBlock,
+  NotionParagraphBlock,
   NotionQuoteBlock,
+  NotionRichText,
 } from "./types.ts";
 
 export class BlockToMarkdown {
@@ -71,14 +71,15 @@ export class BlockToMarkdown {
           break;
         case "bulleted_list_item":
         case "numbered_list_item": {
-          const isLastListItem =
-            !nextBlock ||
+          const isLastListItem = !nextBlock ||
             (nextBlock.type !== "bulleted_list_item" &&
               nextBlock.type !== "numbered_list_item");
 
           markdown += block.type === "bulleted_list_item"
             ? this.convertBulletedListItem(block as NotionBulletedListItemBlock)
-            : this.convertNumberedListItem(block as NotionNumberedListItemBlock);
+            : this.convertNumberedListItem(
+              block as NotionNumberedListItemBlock,
+            );
 
           if (isLastListItem) {
             markdown += "\n";

@@ -26,7 +26,7 @@ declare module "https://esm.sh/marked@9.1.6" {
     lang?: string;
   }
 
-  export type TokenType = 
+  export type TokenType =
     | "paragraph"
     | "heading"
     | "list"

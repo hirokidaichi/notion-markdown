@@ -19,7 +19,7 @@ async function main() {
   try {
     // 指定されたページIDでgetPageを実行
     const result = await client.getPage("18175fb73edc8174b431d10510deb9b4");
-    
+
     console.log("Title:", result.title);
     console.log("\nMarkdown Content:\n");
     console.log(result.markdown);

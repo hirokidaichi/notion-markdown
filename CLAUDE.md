@@ -1,0 +1,70 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Project Overview
+
+This is a Deno-based TypeScript project that provides a Notion-to-Markdown converter with both API and CLI interfaces. The project enables bidirectional conversion between Notion pages and Markdown format.
+
+## Development Commands
+
+```bash
+# Start development server with hot reload
+deno task dev
+
+# Start production server
+deno task start
+
+# Run all tests
+deno task test
+
+# Run specific test file
+deno test --allow-net --allow-env --allow-read ./lib/notion-client.test.ts
+deno test --allow-net --allow-env --allow-read ./lib/block-to-markdown.test.ts
+deno test --allow-net --allow-env --allow-read ./lib/markdown-to-blocks.test.ts
+
+# Format code
+deno fmt
+
+# Lint code
+deno lint
+
+# Install CLI tool
+deno install --allow-env --allow-net --allow-read -n notion-markdown ./cli.ts
+```
+
+## Architecture
+
+### Core Components
+
+- **NotionClient** (`lib/notion-client.ts`): Main service class that orchestrates Notion API interactions and conversions
+- **BlockToMarkdown** (`lib/block-to-markdown.ts`): Converts Notion blocks to Markdown format
+- **MarkdownToBlocks** (`lib/markdown-to-blocks.ts`): Converts Markdown to Notion block structures
+- **API Server** (`main.ts` + `routes/api.ts`): Hono-based HTTP API with authentication middleware
+- **CLI Tool** (`cli.ts`): Command-line interface for direct page operations
+
+### Data Flow
+
+1. **Reading**: Notion API → BlockObjectResponse → NotionBlocks → Markdown
+2. **Writing**: Markdown → NotionBlocks → BlockObjectRequest → Notion API
+
+### Environment Variables
+
+The project requires these environment variables:
+
+- `NOTION_TOKEN` (CLI) / `NOTION_API_KEY` (API): Notion API authentication
+- `NOTION_DATABASE_ID`: Default database for new pages
+- `API_KEY`: Authentication for API endpoints (optional, enables auth middleware)
+- `PORT`: Server port (defaults to 8000)
+
+## Key Patterns
+
+- Uses `.env` file loading via `std/dotenv` for local development
+- All API endpoints under `/pages/*` require Bearer token authentication when `API_KEY` is set
+- Page IDs are validated as UUIDs before processing
+- Error handling with structured JSON responses in API, console output in CLI
+- TypeScript strict mode with comprehensive type definitions in `lib/types.ts`
+
+## Testing Strategy
+
+Tests are located in the `lib/` directory alongside source files, using Deno's built-in test runner. Each core conversion module has dedicated test coverage for various Notion block types and Markdown patterns.

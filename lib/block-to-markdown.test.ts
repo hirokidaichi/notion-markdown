@@ -148,7 +148,10 @@ Deno.test("BlockToMarkdown - 複合的なブロックの変換", () => {
       type: "code",
       code: {
         language: "typescript",
-        rich_text: [{ type: "text", text: { content: 'console.log("Hello");' } }],
+        rich_text: [{
+          type: "text",
+          text: { content: 'console.log("Hello");' },
+        }],
       },
     },
     {
