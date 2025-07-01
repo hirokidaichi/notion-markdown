@@ -3,11 +3,11 @@ info:
   title: Notion Markdown API
   description: |
     A Deno-based TypeScript API that provides bidirectional conversion between Notion pages and Markdown format.
-    
+
     This API enables you to:
     - Retrieve Notion pages as Markdown content
     - Append Markdown content to existing Notion pages
-    
+
     All endpoints require Bearer token authentication when the API_KEY environment variable is configured.
   version: 1.0.0
   contact:
@@ -33,7 +33,7 @@ paths:
         - Health
       security: []
       responses:
-        '200':
+        "200":
           description: API is healthy
           content:
             application/json:
@@ -52,7 +52,7 @@ paths:
         - Info
       security: []
       responses:
-        '200':
+        "200":
           description: API information
           content:
             application/json:
@@ -76,7 +76,7 @@ paths:
       tags:
         - Health
       responses:
-        '200':
+        "200":
           description: API is healthy
           content:
             application/json:
@@ -92,9 +92,9 @@ paths:
       summary: Get Notion page as Markdown
       description: |
         Retrieves a Notion page and converts it to Markdown format.
-        
+
         The page ID must be in UUID format (e.g., 12345678-1234-1234-1234-123456789abc).
-        
+
         Returns both the page title and the complete page content in Markdown format.
       tags:
         - Pages
@@ -106,29 +106,29 @@ paths:
           schema:
             type: string
             format: uuid
-            pattern: '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
+            pattern: "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
           example: 12345678-1234-1234-1234-123456789abc
       responses:
-        '200':
+        "200":
           description: Page retrieved successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GetPageResponse'
-        '400':
+                $ref: "#/components/schemas/GetPageResponse"
+        "400":
           description: Invalid page ID format
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
               example:
                 error: "Invalid page ID format. Expected UUID format."
-        '401':
+        "401":
           description: Authentication required or invalid
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
               examples:
                 missing_auth:
                   summary: Missing authorization header
@@ -138,12 +138,12 @@ paths:
                   summary: Invalid API key
                   value:
                     error: "Invalid API key"
-        '500':
+        "500":
           description: Server error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponseWithDetails'
+                $ref: "#/components/schemas/ErrorResponseWithDetails"
               example:
                 error: "Failed to get page"
                 details: "Page not found or access denied"
@@ -153,10 +153,10 @@ paths:
       summary: Append Markdown content to Notion page
       description: |
         Appends Markdown content to an existing Notion page.
-        
+
         The page ID must be in UUID format. The Markdown content will be converted to Notion blocks
         and appended to the end of the specified page.
-        
+
         Supported Markdown elements:
         - Headings (# ## ###)
         - Paragraphs
@@ -176,35 +176,35 @@ paths:
           schema:
             type: string
             format: uuid
-            pattern: '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
+            pattern: "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
           example: 12345678-1234-1234-1234-123456789abc
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AppendPageRequest'
+              $ref: "#/components/schemas/AppendPageRequest"
       responses:
-        '200':
+        "200":
           description: Content appended successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AppendPageResponse'
-        '400':
+                $ref: "#/components/schemas/AppendPageResponse"
+        "400":
           description: Invalid page ID format or request body
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
               example:
                 error: "Invalid page ID format. Expected UUID format."
-        '401':
+        "401":
           description: Authentication required or invalid
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
               examples:
                 missing_auth:
                   summary: Missing authorization header
@@ -214,12 +214,12 @@ paths:
                   summary: Invalid API key
                   value:
                     error: "Invalid API key"
-        '500':
+        "500":
           description: Server error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponseWithDetails'
+                $ref: "#/components/schemas/ErrorResponseWithDetails"
               example:
                 error: "Failed to append to page"
                 details: "Page not found or insufficient permissions"
@@ -231,7 +231,7 @@ components:
       scheme: bearer
       description: |
         Bearer token authentication using API key.
-        
+
         Set the API_KEY environment variable on the server to enable authentication.
         Include the token in the Authorization header: `Authorization: Bearer YOUR_API_KEY`
 
@@ -247,14 +247,14 @@ components:
           description: The complete page content converted to Markdown format
           example: |
             # My Page Title
-            
+
             This is a paragraph with **bold** and *italic* text.
-            
+
             ## Section Header
-            
+
             - Bullet point 1
             - Bullet point 2
-            
+
             ```typescript
             console.log("Hello, World!");
             ```
@@ -273,12 +273,12 @@ components:
           description: Markdown content to append to the page
           example: |
             ## New Section
-            
+
             This content will be added to the end of the page.
-            
+
             - New bullet point
             - Another point
-            
+
             ```python
             print("Hello from Python!")
             ```

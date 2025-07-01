@@ -1,6 +1,6 @@
 /**
  * TypeScript Examples for Notion Markdown API
- * 
+ *
  * This file demonstrates how to interact with the Notion Markdown API using TypeScript.
  * You can use this with Node.js, Deno, or in browser environments.
  */
@@ -45,10 +45,10 @@ class NotionMarkdownApiError extends Error {
   constructor(
     message: string,
     public status: number,
-    public details?: string
+    public details?: string,
   ) {
     super(message);
-    this.name = 'NotionMarkdownApiError';
+    this.name = "NotionMarkdownApiError";
   }
 }
 
@@ -60,7 +60,7 @@ class NotionMarkdownClient {
   private apiKey: string;
 
   constructor(config: NotionMarkdownConfig) {
-    this.baseUrl = config.baseUrl.replace(/\/$/, ''); // Remove trailing slash
+    this.baseUrl = config.baseUrl.replace(/\/$/, ""); // Remove trailing slash
     this.apiKey = config.apiKey;
   }
 
@@ -69,18 +69,18 @@ class NotionMarkdownClient {
    */
   private async makeRequest<T>(
     path: string,
-    options: RequestInit = {}
+    options: RequestInit = {},
   ): Promise<T> {
     const url = `${this.baseUrl}${path}`;
-    
+
     const headers: HeadersInit = {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
       ...options.headers,
     };
 
     // Add authentication for /api/pages/* endpoints
-    if (path.startsWith('/api/pages/')) {
-      headers['Authorization'] = `Bearer ${this.apiKey}`;
+    if (path.startsWith("/api/pages/")) {
+      headers["Authorization"] = `Bearer ${this.apiKey}`;
     }
 
     const response = await fetch(url, {
@@ -95,7 +95,7 @@ class NotionMarkdownClient {
       throw new NotionMarkdownApiError(
         errorData.error,
         response.status,
-        errorData.details
+        errorData.details,
       );
     }
 
@@ -106,14 +106,14 @@ class NotionMarkdownClient {
    * Check if the API server is healthy
    */
   async healthCheck(): Promise<{ status: string }> {
-    return this.makeRequest<{ status: string }>('/health');
+    return this.makeRequest<{ status: string }>("/health");
   }
 
   /**
    * Get API information
    */
   async getApiInfo(): Promise<ApiInfo> {
-    return this.makeRequest<ApiInfo>('/api');
+    return this.makeRequest<ApiInfo>("/api");
   }
 
   /**
@@ -127,17 +127,20 @@ class NotionMarkdownClient {
   /**
    * Append Markdown content to an existing Notion page
    */
-  async appendToPage(pageId: string, markdown: string): Promise<AppendPageResponse> {
+  async appendToPage(
+    pageId: string,
+    markdown: string,
+  ): Promise<AppendPageResponse> {
     this.validatePageId(pageId);
-    
+
     const body: AppendPageRequest = { markdown };
-    
+
     return this.makeRequest<AppendPageResponse>(
       `/api/pages/${pageId}/append`,
       {
-        method: 'POST',
+        method: "POST",
         body: JSON.stringify(body),
-      }
+      },
     );
   }
 
@@ -145,9 +148,10 @@ class NotionMarkdownClient {
    * Validate that a page ID is in the correct UUID format
    */
   private validatePageId(pageId: string): void {
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    const uuidRegex =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
     if (!uuidRegex.test(pageId)) {
-      throw new Error('Invalid page ID format. Expected UUID format.');
+      throw new Error("Invalid page ID format. Expected UUID format.");
     }
   }
 }
@@ -159,28 +163,28 @@ class NotionMarkdownClient {
  */
 async function basicExample() {
   const client = new NotionMarkdownClient({
-    baseUrl: 'http://localhost:8000',
-    apiKey: 'your-api-key-here',
+    baseUrl: "http://localhost:8000",
+    apiKey: "your-api-key-here",
   });
 
   try {
     // Check API health
     const health = await client.healthCheck();
-    console.log('API Health:', health);
+    console.log("API Health:", health);
 
     // Get API info
     const apiInfo = await client.getApiInfo();
-    console.log('API Info:', apiInfo);
+    console.log("API Info:", apiInfo);
 
     // Get a page
-    const pageId = '12345678-1234-1234-1234-123456789abc';
+    const pageId = "12345678-1234-1234-1234-123456789abc";
     const page = await client.getPage(pageId);
-    console.log('Page Title:', page.title);
-    console.log('Page Content Length:', page.markdown.length);
+    console.log("Page Title:", page.title);
+    console.log("Page Content Length:", page.markdown.length);
 
     // Append content to the page
     const newContent = `
-## Daily Update - ${new Date().toISOString().split('T')[0]}
+## Daily Update - ${new Date().toISOString().split("T")[0]}
 
 ### Progress
 - Completed API integration
@@ -193,16 +197,15 @@ async function basicExample() {
 `;
 
     const appendResult = await client.appendToPage(pageId, newContent);
-    console.log('Append Success:', appendResult.success);
-
+    console.log("Append Success:", appendResult.success);
   } catch (error) {
     if (error instanceof NotionMarkdownApiError) {
       console.error(`API Error (${error.status}):`, error.message);
       if (error.details) {
-        console.error('Details:', error.details);
+        console.error("Details:", error.details);
       }
     } else {
-      console.error('Unexpected error:', error);
+      console.error("Unexpected error:", error);
     }
   }
 }
@@ -231,15 +234,17 @@ class AdvancedNotionMarkdownClient extends NotionMarkdownClient {
         return await operation();
       } catch (error) {
         lastError = error as Error;
-        
+
         // Don't retry on client errors (4xx)
         if (error instanceof NotionMarkdownApiError && error.status < 500) {
           throw error;
         }
 
         if (attempt < this.maxRetries) {
-          console.warn(`Attempt ${attempt} failed, retrying in ${this.retryDelay}ms...`);
-          await new Promise(resolve => setTimeout(resolve, this.retryDelay));
+          console.warn(
+            `Attempt ${attempt} failed, retrying in ${this.retryDelay}ms...`,
+          );
+          await new Promise((resolve) => setTimeout(resolve, this.retryDelay));
           this.retryDelay *= 2; // Exponential backoff
         }
       }
@@ -258,7 +263,10 @@ class AdvancedNotionMarkdownClient extends NotionMarkdownClient {
   /**
    * Append to page with retry logic
    */
-  async appendToPageWithRetry(pageId: string, markdown: string): Promise<AppendPageResponse> {
+  async appendToPageWithRetry(
+    pageId: string,
+    markdown: string,
+  ): Promise<AppendPageResponse> {
     return this.withRetry(() => super.appendToPage(pageId, markdown));
   }
 }
@@ -269,12 +277,12 @@ class AdvancedNotionMarkdownClient extends NotionMarkdownClient {
 class NotionMarkdownUtils {
   static formatDailyReport(tasks: string[], notes: string): string {
     const date = new Date().toLocaleDateString();
-    
+
     return `
 ## Daily Report - ${date}
 
 ### Completed Tasks
-${tasks.map(task => `- [x] ${task}`).join('\n')}
+${tasks.map((task) => `- [x] ${task}`).join("\n")}
 
 ### Notes
 ${notes}
@@ -284,15 +292,18 @@ ${new Date().toISOString()}
 `;
   }
 
-  static formatCodeSnippet(code: string, language: string = 'typescript'): string {
+  static formatCodeSnippet(
+    code: string,
+    language: string = "typescript",
+  ): string {
     return `\`\`\`${language}\n${code}\n\`\`\``;
   }
 
   static formatTable(headers: string[], rows: string[][]): string {
-    const headerRow = `| ${headers.join(' | ')} |`;
-    const separatorRow = `| ${headers.map(() => '---').join(' | ')} |`;
-    const dataRows = rows.map(row => `| ${row.join(' | ')} |`).join('\n');
-    
+    const headerRow = `| ${headers.join(" | ")} |`;
+    const separatorRow = `| ${headers.map(() => "---").join(" | ")} |`;
+    const dataRows = rows.map((row) => `| ${row.join(" | ")} |`).join("\n");
+
     return `${headerRow}\n${separatorRow}\n${dataRows}`;
   }
 }
@@ -302,20 +313,20 @@ ${new Date().toISOString()}
  */
 async function batchOperationsExample() {
   const client = new AdvancedNotionMarkdownClient({
-    baseUrl: 'http://localhost:8000',
-    apiKey: process.env.API_KEY || 'your-api-key-here',
+    baseUrl: "http://localhost:8000",
+    apiKey: process.env.API_KEY || "your-api-key-here",
   });
 
   const pageIds = [
-    '12345678-1234-1234-1234-123456789abc',
-    '87654321-4321-4321-4321-cba987654321',
+    "12345678-1234-1234-1234-123456789abc",
+    "87654321-4321-4321-4321-cba987654321",
   ];
 
   // Batch append operations
   const appendPromises = pageIds.map(async (pageId, index) => {
     const content = NotionMarkdownUtils.formatDailyReport(
       [`Task ${index + 1} completed`, `Review ${index + 1} done`],
-      `This is batch update #${index + 1}`
+      `This is batch update #${index + 1}`,
     );
 
     try {
@@ -329,20 +340,23 @@ async function batchOperationsExample() {
   });
 
   const results = await Promise.all(appendPromises);
-  
-  const successCount = results.filter(r => r.success).length;
-  console.log(`Batch operation completed: ${successCount}/${results.length} successful`);
+
+  const successCount = results.filter((r) => r.success).length;
+  console.log(
+    `Batch operation completed: ${successCount}/${results.length} successful`,
+  );
 }
 
 /**
  * Example with environment configuration
  */
 function createClientFromEnv(): NotionMarkdownClient {
-  const baseUrl = process.env.NOTION_MARKDOWN_API_URL || 'http://localhost:8000';
+  const baseUrl = process.env.NOTION_MARKDOWN_API_URL ||
+    "http://localhost:8000";
   const apiKey = process.env.NOTION_MARKDOWN_API_KEY;
 
   if (!apiKey) {
-    throw new Error('NOTION_MARKDOWN_API_KEY environment variable is required');
+    throw new Error("NOTION_MARKDOWN_API_KEY environment variable is required");
   }
 
   return new NotionMarkdownClient({ baseUrl, apiKey });
@@ -354,19 +368,21 @@ function createClientFromEnv(): NotionMarkdownClient {
 async function robustExample() {
   try {
     const client = createClientFromEnv();
-    
+
     // Validate connection
     await client.healthCheck();
-    console.log('✓ Connected to API');
+    console.log("✓ Connected to API");
 
     const pageId = process.env.NOTION_PAGE_ID;
     if (!pageId) {
-      throw new Error('NOTION_PAGE_ID environment variable is required');
+      throw new Error("NOTION_PAGE_ID environment variable is required");
     }
 
     // Get current page content
     const currentPage = await client.getPage(pageId);
-    console.log(`Current page: "${currentPage.title}" (${currentPage.markdown.length} chars)`);
+    console.log(
+      `Current page: "${currentPage.title}" (${currentPage.markdown.length} chars)`,
+    );
 
     // Generate update content
     const updateContent = `
@@ -376,18 +392,22 @@ async function robustExample() {
 - Content Length: ${currentPage.markdown.length} characters
 - Update Source: TypeScript API Client
 
-${NotionMarkdownUtils.formatCodeSnippet(`
+${
+      NotionMarkdownUtils.formatCodeSnippet(
+        `
 // Example of the TypeScript client usage
 const client = new NotionMarkdownClient(config);
 const page = await client.getPage('${pageId}');
 console.log('Page title:', page.title);
-`, 'typescript')}
+`,
+        "typescript",
+      )
+    }
 `;
 
     // Append the update
     const result = await client.appendToPage(pageId, updateContent);
-    console.log('✓ Update appended successfully:', result.success);
-
+    console.log("✓ Update appended successfully:", result.success);
   } catch (error) {
     if (error instanceof NotionMarkdownApiError) {
       console.error(`API Error (${error.status}): ${error.message}`);
@@ -395,7 +415,7 @@ console.log('Page title:', page.title);
         console.error(`Details: ${error.details}`);
       }
     } else {
-      console.error('Configuration or network error:', error);
+      console.error("Configuration or network error:", error);
     }
     process.exit(1);
   }
@@ -403,20 +423,20 @@ console.log('Page title:', page.title);
 
 // Export everything for use in other modules
 export {
-  NotionMarkdownClient,
   AdvancedNotionMarkdownClient,
-  NotionMarkdownUtils,
-  NotionMarkdownApiError,
   createClientFromEnv,
+  NotionMarkdownApiError,
+  NotionMarkdownClient,
+  NotionMarkdownUtils,
 };
 
 export type {
-  NotionMarkdownConfig,
-  GetPageResponse,
+  ApiInfo,
   AppendPageRequest,
   AppendPageResponse,
   ErrorResponse,
-  ApiInfo,
+  GetPageResponse,
+  NotionMarkdownConfig,
 };
 
 // Example execution (uncomment to run)

@@ -134,7 +134,7 @@ Deno.test("NotionClient - appendPage 異常系（変換エラー）", async () =
 
 Deno.test("NotionClient - mapLanguage", () => {
   const client = new NotionClient("dummy-api-key");
-  
+
   // @ts-ignore: プライベートメソッドへのアクセス
   assertEquals(client.mapLanguage("cpp"), "c++");
   // @ts-ignore: プライベートメソッドへのアクセス

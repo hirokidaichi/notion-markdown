@@ -5,6 +5,7 @@ This guide will help you get started with the Notion Markdown API, a service tha
 ## Overview
 
 The Notion Markdown API allows you to:
+
 - **Read** Notion pages and convert them to Markdown format
 - **Append** Markdown content to existing Notion pages
 - Maintain rich formatting including headings, lists, code blocks, and more
@@ -59,23 +60,27 @@ export NOTION_DATABASE_ID="your-database-id"
 ### Running the Server
 
 1. **Clone and navigate to the project:**
+
 ```bash
 git clone https://github.com/your-username/notion-markdown.git
 cd notion-markdown
 ```
 
 2. **Create environment file:**
+
 ```bash
 cp .env.example .env
 # Edit .env file with your tokens
 ```
 
 3. **Start the development server:**
+
 ```bash
 deno task dev
 ```
 
 4. **Or start the production server:**
+
 ```bash
 deno task start
 ```
@@ -91,6 +96,7 @@ curl http://localhost:8000/health
 ```
 
 Expected response:
+
 ```json
 {
   "status": "ok"
@@ -98,11 +104,13 @@ Expected response:
 ```
 
 Get API information:
+
 ```bash
 curl http://localhost:8000/api
 ```
 
 Expected response:
+
 ```json
 {
   "name": "notion-markdown-api",
@@ -118,11 +126,13 @@ The API uses Bearer token authentication for all `/api/pages/*` endpoints when t
 ### Setting Up Authentication
 
 1. **Set API key on server:**
+
 ```bash
 export API_KEY="your-secure-api-key"
 ```
 
 2. **Include in requests:**
+
 ```bash
 curl -H "Authorization: Bearer your-secure-api-key" \
      http://localhost:8000/api/pages/YOUR_PAGE_ID
@@ -143,6 +153,7 @@ If `API_KEY` is not set, the server will return an error for protected endpoints
 ### 1. Get Your Page ID
 
 Notion page IDs are found in the URL. For example:
+
 - URL: `https://www.notion.so/My-Page-12345678123412341234123456789abc`
 - Page ID: `12345678-1234-1234-1234-123456789abc`
 
@@ -159,6 +170,7 @@ curl -H "Authorization: Bearer $API_KEY" \
 ```
 
 Example response:
+
 ```json
 {
   "title": "My Project Documentation",
@@ -177,6 +189,7 @@ curl -X POST \
 ```
 
 Example response:
+
 ```json
 {
   "success": true
@@ -188,20 +201,25 @@ Example response:
 The API supports bidirectional conversion for these Markdown elements:
 
 ### Text Formatting
+
 - **Bold text**
-- *Italic text*
+- _Italic text_
 - ~~Strikethrough~~
 - <u>Underline</u>
 - `Inline code`
 
 ### Headings
+
 ```markdown
 # Heading 1
+
 ## Heading 2
+
 ### Heading 3
 ```
 
 ### Lists
+
 ```markdown
 - Bulleted list item
 - Another bullet point
@@ -214,6 +232,7 @@ The API supports bidirectional conversion for these Markdown elements:
 ```
 
 ### Code Blocks
+
 ````markdown
 ```typescript
 function hello() {
@@ -225,15 +244,18 @@ function hello() {
 Supported languages include: TypeScript, JavaScript, Python, Java, C++, and many more.
 
 ### Quotes
+
 ```markdown
 > This is a quote block
 > It can span multiple lines
 ```
 
 ### Images
+
 ```markdown
 ![Alt text](https://example.com/image.png)
 ```
+
 Note: Only external image URLs are supported.
 
 ## Error Handling
@@ -243,6 +265,7 @@ The API returns structured error responses:
 ### Client Errors (4xx)
 
 **Invalid Page ID:**
+
 ```json
 {
   "error": "Invalid page ID format. Expected UUID format."
@@ -250,6 +273,7 @@ The API returns structured error responses:
 ```
 
 **Authentication Errors:**
+
 ```json
 {
   "error": "Authorization header is missing or invalid"
@@ -265,6 +289,7 @@ The API returns structured error responses:
 ### Server Errors (5xx)
 
 **General Server Error:**
+
 ```json
 {
   "error": "Failed to get page",
@@ -275,6 +300,7 @@ The API returns structured error responses:
 ## Rate Limiting and Best Practices
 
 ### Rate Limiting
+
 - No explicit rate limits are set by the API server
 - Notion API has its own rate limits (3 requests per second for integrations)
 - Implement client-side rate limiting for bulk operations
@@ -313,6 +339,7 @@ The API returns structured error responses:
 ## Support
 
 For issues and questions:
+
 - Check the [troubleshooting guide](./troubleshooting.md)
 - Review the API documentation
 - Check server logs for detailed error information

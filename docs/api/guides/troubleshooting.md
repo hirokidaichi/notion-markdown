@@ -19,12 +19,14 @@ This guide helps you diagnose and resolve common issues when working with the No
 **Cause**: The page ID you provided is not in the correct UUID format.
 
 **Solution**:
+
 1. Check your page ID format. It should look like: `12345678-1234-1234-1234-123456789abc`
 2. Extract the ID correctly from the Notion URL:
    - URL: `https://www.notion.so/My-Page-123456781234123412341234567890ab`
    - Correct ID: `12345678-1234-1234-1234-567890abcdef` (add hyphens)
 
 **Example Fix**:
+
 ```bash
 # Wrong
 curl "http://localhost:8000/api/pages/123456781234123412341234567890ab"
@@ -38,11 +40,13 @@ curl "http://localhost:8000/api/pages/12345678-1234-1234-1234-567890abcdef"
 **Cause**: The request doesn't include proper authentication.
 
 **Solution**:
+
 1. Ensure you're including the Authorization header
 2. Use the correct Bearer token format
 3. Check that your API key matches the server configuration
 
 **Example Fix**:
+
 ```bash
 # Wrong
 curl "http://localhost:8000/api/pages/12345678-1234-1234-1234-123456789abc"
@@ -55,12 +59,14 @@ curl -H "Authorization: Bearer your-api-key" \
 ### `Failed to get page` with details
 
 **Common Causes**:
+
 - Page doesn't exist
 - Integration doesn't have access to the page
 - Notion API token is invalid
 - Network connectivity issues
 
 **Solutions**:
+
 1. Verify the page exists in Notion
 2. Check integration permissions (see [Page Access Setup](#page-access-setup))
 3. Validate your Notion token
@@ -72,6 +78,7 @@ curl -H "Authorization: Bearer your-api-key" \
 
 **Solution**:
 Set the API_KEY environment variable on the server:
+
 ```bash
 export API_KEY="your-chosen-api-key"
 deno task start
@@ -116,6 +123,7 @@ If your integration token stops working:
 ### Server Not Starting
 
 **Check Environment Variables**:
+
 ```bash
 # Required
 echo $NOTION_TOKEN
@@ -126,11 +134,13 @@ echo $PORT
 ```
 
 **Check Dependencies**:
+
 ```bash
 deno --version
 ```
 
 **Start with Debugging**:
+
 ```bash
 # Enable debug output
 DEBUG=* deno task dev
@@ -139,6 +149,7 @@ DEBUG=* deno task dev
 ### Cannot Connect to API
 
 **Test Basic Connectivity**:
+
 ```bash
 # Test health endpoint (no auth required)
 curl http://localhost:8000/health
@@ -148,6 +159,7 @@ curl http://localhost:3000/health
 ```
 
 **Check Port Configuration**:
+
 ```bash
 # Check if port is in use
 lsof -i :8000
@@ -157,6 +169,7 @@ PORT=3000 deno task dev
 ```
 
 **Firewall Issues**:
+
 ```bash
 # Check if port is blocked
 telnet localhost 8000
@@ -167,6 +180,7 @@ telnet localhost 8000
 ### Network Timeouts
 
 **Increase Timeout Values**:
+
 ```bash
 # For cURL requests
 curl --connect-timeout 30 --max-time 60 \
@@ -175,6 +189,7 @@ curl --connect-timeout 30 --max-time 60 \
 ```
 
 **Check Notion API Status**:
+
 - Visit [Notion Status Page](https://status.notion.com/)
 - Test direct Notion API connectivity
 
@@ -187,6 +202,7 @@ curl --connect-timeout 30 --max-time 60 \
 **Solution**: Check which Notion block types are supported:
 
 Supported types:
+
 - ✅ Headings (1, 2, 3)
 - ✅ Paragraphs
 - ✅ Bulleted lists
@@ -198,6 +214,7 @@ Supported types:
 - ✅ Rich text formatting
 
 Unsupported types (may be skipped or converted as text):
+
 - ❌ Databases
 - ❌ Embedded content
 - ❌ Complex tables
@@ -207,6 +224,7 @@ Unsupported types (may be skipped or converted as text):
 ### Markdown Conversion Errors
 
 **Large Content Issues**:
+
 ```bash
 # Check content size before conversion
 curl -H "Authorization: Bearer $API_KEY" \
@@ -215,6 +233,7 @@ curl -H "Authorization: Bearer $API_KEY" \
 ```
 
 **Special Characters**:
+
 - Ensure proper UTF-8 encoding
 - Check for problematic characters in code blocks
 - Validate JSON escaping in API calls
@@ -224,6 +243,7 @@ curl -H "Authorization: Bearer $API_KEY" \
 **External Images Only**: Only external image URLs are supported. Notion-hosted images may not convert properly.
 
 **Test Image URLs**:
+
 ```bash
 # Check if image URL is accessible
 curl -I "https://example.com/image.png"
@@ -287,7 +307,7 @@ curl -I "https://example.com/image.png"
    const stream = new ReadableStream({
      start(controller) {
        // Process content in chunks
-     }
+     },
    });
    ```
 
@@ -302,6 +322,7 @@ curl -I "https://example.com/image.png"
 ### Enable Debug Logging
 
 **Server-side Debugging**:
+
 ```bash
 # Enable verbose logging
 DEBUG=notion:* deno task dev
@@ -311,6 +332,7 @@ LOG_LEVEL=debug deno task dev
 ```
 
 **API Request Debugging**:
+
 ```bash
 # Verbose cURL output
 curl -v -H "Authorization: Bearer $API_KEY" \
@@ -377,6 +399,7 @@ echo "=== Health Check Complete ==="
 ### Log Analysis
 
 **Search for Common Issues**:
+
 ```bash
 # Check server logs for errors
 tail -f server.log | grep -E "(ERROR|WARN|Failed)"
@@ -401,6 +424,7 @@ grep -E "timeout|slow|performance" server.log
    - POST `/api/pages/{{page_id}}/append`
 
 **Using httpie**:
+
 ```bash
 # Install httpie
 pip install httpie
