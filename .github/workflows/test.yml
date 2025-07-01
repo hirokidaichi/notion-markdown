@@ -18,8 +18,8 @@ jobs:
         with:
           deno-version: "1.39.1"
 
-      - name: Update lockfile
-        run: deno cache --reload --lock=deno.lock --lock-write main.ts cli.ts client.ts
+      - name: Cache dependencies
+        run: deno cache --reload --lock=deno.lock main.ts cli/cli.ts examples/client.ts
 
       - name: Run tests
         run: deno test --allow-net --allow-env --allow-read
