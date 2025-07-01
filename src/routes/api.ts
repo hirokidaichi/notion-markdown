@@ -5,6 +5,7 @@ import {
   GetPageResponse,
 } from "../types.ts";
 import { NotionClient } from "../lib/notion-client.ts";
+import { validateAndNormalizeNotionId } from "../lib/uuid-utils.ts";
 
 const api = new Hono();
 
@@ -15,16 +16,17 @@ const notionClient = new NotionClient(Deno.env.get("NOTION_TOKEN") || "");
 // deno-lint-ignore no-explicit-any
 const validateUUID = async (c: any, next: any) => {
   const pageId = c.req.param("pageId");
-  const uuidRegex =
-    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  const validation = validateAndNormalizeNotionId(pageId);
 
-  if (!uuidRegex.test(pageId)) {
+  if (!validation.isValid) {
     return c.json(
-      { error: "Invalid page ID format. Expected UUID format." },
+      { error: validation.error || "Invalid page ID format" },
       400,
     );
   }
 
+  // 正規化されたIDをcontextに保存
+  c.set("normalizedPageId", validation.normalizedId);
   await next();
 };
 
@@ -71,7 +73,7 @@ api.use("/pages/*", auth);
 
 api.get("/pages/:pageId", validateUUID, async (c) => {
   try {
-    const pageId = c.req.param("pageId");
+    const pageId = c.get("normalizedPageId") as string;
     const result = await notionClient.getPage(pageId);
     const response: GetPageResponse = {
       markdown: result.markdown,
@@ -93,7 +95,7 @@ api.get("/pages/:pageId", validateUUID, async (c) => {
 // POST /api/pages/:pageId/append
 api.post("/pages/:pageId/append", validateUUID, async (c) => {
   try {
-    const pageId = c.req.param("pageId");
+    const pageId = c.get("normalizedPageId") as string;
     const body: AppendPageRequest = await c.req.json();
     await notionClient.appendPage(pageId, body.markdown);
     const response: AppendPageResponse = {

@@ -68,3 +68,13 @@ The project requires these environment variables:
 ## Testing Strategy
 
 Tests are located in the `src/lib/` directory alongside source files, using Deno's built-in test runner. Each core conversion module has dedicated test coverage for various Notion block types and Markdown patterns.
+
+## Important Development Notes
+
+- Environment variables are loaded from `.env` file for local development - never commit secrets
+- CLI uses `NOTION_TOKEN` environment variable, while API uses `NOTION_API_KEY`
+- API authentication is optional - only enforced when `API_KEY` environment variable is set
+- All file operations require proper Deno permissions: `--allow-net --allow-env --allow-read`
+- The project includes comprehensive language mapping for code blocks in `NotionClient`
+- API routes include UUID validation middleware for page IDs
+- Health check endpoint available at `/health` for monitoring
